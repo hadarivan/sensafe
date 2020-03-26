@@ -26,12 +26,12 @@ const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 export default class Simulation extends Component {
   constructor() {
     super();
-    global.avg = 0;
+    (global.avg = []).length = 8;
+    global.avg.fill(0);
     this.state = {
       scanning: false,
       peripherals: new Map(),
       appState: '',
-      signs: [],
     };
 
     this.handleDiscoverPeripheral = this.handleDiscoverPeripheral.bind(this);
@@ -44,7 +44,6 @@ export default class Simulation extends Component {
       this,
     );
     this.handleAppStateChange = this.handleAppStateChange.bind(this);
-    this.calculateDistance = this.calculateDistance.bind(this);
     this.speak = this.speak.bind(this);
   }
 
@@ -141,7 +140,7 @@ export default class Simulation extends Component {
   startScan() {
     if (!this.state.scanning) {
       //this.setState({peripherals: new Map()});
-      BleManager.scan([], 30, true).then(results => {
+      BleManager.scan([], 600, true).then(results => {
         console.log('Scanning...');
         this.setState({scanning: true});
       });
@@ -158,27 +157,20 @@ export default class Simulation extends Component {
   }
 
   handleDiscoverPeripheral(peripheral) {
-    console.log('hello');
     var peripherals = this.state.peripherals;
     if (peripheral.name) {
-      console.log(peripheral);
-      peripherals.set(peripheral.id, peripheral);
-      this.setState({peripherals});
+      if (
+        peripheral.name.includes('stopSign') ||
+        peripheral.name.includes('giveWay')
+      ) {
+        console.log(peripheral);
+        peripherals.set(peripheral.id, peripheral);
+        this.setState({peripherals});
+      }
     }
     if (!peripheral.name) {
       peripheral.name = null;
     }
-  }
-
-  calculateDistance(rssi) {
-    var measuredPower = -59; //hard coded power value. Usually ranges between -59 to -65
-
-    if (rssi == 0) {
-      return -1.0;
-    }
-    var temp = ((measuredPower - rssi) / 10) * 2;
-    var distance = Math.pow(10, temp);
-    return distance;
   }
 
   test(peripheral) {
@@ -241,13 +233,40 @@ export default class Simulation extends Component {
     );
   }
   speak(list) {
-    for (var i = 0; i < list.length; i++) {
-      if (list[i].name === 'StopSign1') {
-        global.avg = (global.avg * 2 + list[i].rssi * 1) / 3;
-        console.log(global.avg)
-        if (global.avg > -60) {
+    var flag = false;
+    var name;
+    if (list.length > 3) {
+      for (var i = 0; i < 4; i++) {
+        global.avg[i] = (global.avg[i] + list[i].rssi) / 2;
+      }
+    }
+    for (var index = 0; index < list.length; index++) {
+      console.log('name' + list[index].name + 'avg' + global.avg[index]);
+
+      if (
+        (list[index].name.includes('1') || list[index].name.includes('2')) &&
+        global.avg[index] > -65
+      ) {
+        flag = true;
+        name = list[index].name;
+      }
+      if (
+        flag &&
+        ((list[index].name.includes('3') || list[index].name.includes('4')) &&
+          global.avg[index] < -80)
+      ) {
+        if (
+          list[index].name.includes('stopSign') &&
+          name.includes('stopSign')
+        ) {
           Tts.stop();
-          Tts.speak('shahar');
+          Tts.speak('Stop Sign, Please stop');
+          flag=false;
+        }
+        if (list[index].name.includes('giveWay') && name.includes('giveWay')) {
+          Tts.stop();
+          Tts.speak('Please slow down');
+          flag=false;
         }
       }
     }
@@ -255,14 +274,11 @@ export default class Simulation extends Component {
 
   render() {
     const list = Array.from(this.state.peripherals.values());
+    list.sort((a, b) => (a.name > b.name ? 1 : -1));
     const btnScanTitle =
       'Start Simulation (' + (this.state.scanning ? 'on' : 'off') + ')';
     const btnStopScanTitle = 'Stop Simulation';
-    if (list.length > 1) {
-      // global.avg3 = (global.avg3*2 + list[2].rssi*1) / 3;
-      console.log('AVG IS ' + list[0].id + global.avg1);
-      console.log('AVG IS ' + list[1].id + global.avg2);
-      // console.log('AVG IS ' + list[2].id + global.avg3);
+    if (list.length > 3) {
       return (
         <SafeAreaView style={styles.container}>
           <View style={styles.container}>
@@ -287,11 +303,13 @@ export default class Simulation extends Component {
               }
               keyExtractor={item => item.id}
             />
+            {Tts.stop()} {Tts.speak('Stop sign - please stop')}
             {this.speak(list)}
             <Text>
-              AVG is {list[0].name + ' ' + global.avg1 + '\n'}
-              AVG is {list[1].name + ' ' + global.avg2 + '\n'}
-              {/* AVG is {list[2].id + " " + global.avg3}  */}
+              AVG is {list[0].name + ' ' + global.avg[0] + '\n'}
+              AVG is {list[1].name + ' ' + global.avg[1] + '\n'}
+              AVG is {list[2].name + ' ' + global.avg[2] + '\n'}
+              AVG is {list[3].name + ' ' + global.avg[3] + '\n'}
             </Text>
           </View>
         </SafeAreaView>
