@@ -8,9 +8,13 @@ import {
   Button,
   TextInput,
   TouchableOpacity,
-  CheckBox,
+  Dimensions,
   ScrollView,
 } from 'react-native';
+
+import Swiper from 'react-native-swiper';
+let screenWidth = Dimensions.get('window').width;
+let screenHeight = Dimensions.get('window').height;
 export default class Question extends React.Component {
   constructor() {
     super();
@@ -20,8 +24,11 @@ export default class Question extends React.Component {
       level2: [],
       level3: [],
       isLoaded: false,
+      backgroundColor: 'white',
+      clickedId: null,
     };
     this.changeLoad = this.changeLoad.bind(this);
+    this.changeColor = this.changeColor.bind(this);
   }
 
   componentDidMount() {
@@ -51,6 +58,16 @@ export default class Question extends React.Component {
     this.setState({isLoaded: true});
   }
 
+  changeColor(isCorrect, clickedId) {
+    console.log(clickedId);
+    isCorrect
+      ? (this.setState({backgroundColor: 'green'}),
+        this.setState({clickedId: clickedId}))
+      : (this.setState({backgroundColor: 'red'}),
+        this.setState({clickedId: clickedId}));
+    console.log(this.state.clickedId);
+  }
+
   render() {
     //   check what level the student is and show - for now we put level 1.
     var questions = this.state.level1;
@@ -58,10 +75,10 @@ export default class Question extends React.Component {
       <ScrollView>
         <View style={styles.container}>
           {this.state.isLoaded ? (
-            <View style={styles.container}>
+            <ScrollView horizontal={true} pagingEnabled={true}>
               {questions.map(question => {
                 return (
-                  <View key={question._id} style={styles.questions}>
+                  <View key={question._id} style={styles.container}>
                     <Text style={styles.question}>{question.question}</Text>
                     {question.image ? (
                       <Image
@@ -72,12 +89,10 @@ export default class Question extends React.Component {
                     <TouchableOpacity
                       style={styles.choice}
                       onPress={() => {
-                        if (question.answers[0].isRight) {
-                          alert('correct');
-                          this.setState({isCorrect0: true});
-                        } else {
-                          this.setState({isCorrect0: false});
-                        }
+                        question.answers[0].isRight
+                          ? (alert('correct'),
+                            this.setState({isCorrect0: true}))
+                          : this.setState({isCorrect0: false});
                       }}>
                       <Text style={styles.answer}>
                         {question.answers[0].answer}
@@ -86,12 +101,10 @@ export default class Question extends React.Component {
                     <TouchableOpacity
                       style={styles.choice}
                       onPress={() => {
-                        if (question.answers[1].isRight) {
-                          alert('correct');
-                          this.setState({isCorrect1: true});
-                        } else {
-                          this.setState({isCorrect1: false});
-                        }
+                        question.answers[1].isRight
+                          ? (alert('correct'),
+                            this.setState({isCorrect1: true}))
+                          : this.setState({isCorrect1: false});
                       }}>
                       <Text style={styles.answer}>
                         {question.answers[1].answer}
@@ -100,12 +113,10 @@ export default class Question extends React.Component {
                     <TouchableOpacity
                       style={styles.choice}
                       onPress={() => {
-                        if (question.answers[2].isRight) {
-                          alert('correct');
-                          this.setState({isCorrect2: true});
-                        } else {
-                          this.setState({isCorrect2: false});
-                        }
+                        question.answers[2].isRight
+                          ? (alert('correct'),
+                            this.setState({isCorrect2: true}))
+                          : this.setState({isCorrect2: false});
                       }}>
                       <Text style={styles.answer}>
                         {question.answers[2].answer}
@@ -114,12 +125,10 @@ export default class Question extends React.Component {
                     <TouchableOpacity
                       style={styles.choice}
                       onPress={() => {
-                        if (question.answers[3].isRight) {
-                          alert('correct');
-                          this.setState({isCorrect3: true});
-                        } else {
-                          this.setState({isCorrect3: false});
-                        }
+                        question.answers[3].isRight
+                          ? (alert('correct'),
+                            this.setState({isCorrect3: true}))
+                          : this.setState({isCorrect3: false});
                       }}>
                       <Text style={styles.answer}>
                         {question.answers[3].answer}
@@ -128,7 +137,7 @@ export default class Question extends React.Component {
                   </View>
                 );
               })}
-            </View>
+            </ScrollView>
           ) : null}
         </View>
       </ScrollView>
@@ -139,6 +148,9 @@ export default class Question extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: 20,
+    width: screenWidth,
+    height: screenHeight,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#9DD6EB',
@@ -168,3 +180,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
