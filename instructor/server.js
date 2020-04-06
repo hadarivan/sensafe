@@ -27,6 +27,7 @@ app.post('/instructor/editClassName', instructorCtl.editClassName); // edit clas
 app.post('/instructor/deleteClassName', instructorCtl.deleteClassName); // delete classes
 app.post('/instructor/addClassName', instructorCtl.addClassName); // add classes
 app.get('/instructor', instructorCtl.allData);
+app.post('/oneInstructor', instructorCtl.OneInstructor);
 
 
 

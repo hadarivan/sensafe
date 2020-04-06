@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const schema = {
     id:{type:Number},
     name:{type:String},
-    className:{type:Array}
+    className:{type:Array},
+    password: {type:String},
 };
 
 const instructor_schema = new mongoose.Schema(schema, {versionKey: false});
