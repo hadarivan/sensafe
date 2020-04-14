@@ -22,8 +22,10 @@ app.use(//middleware
 /* All routes of student */
 app.post('/instructor/create', instructorCtl.createInstructor); // create new instructor
 app.post('/instructor/editId', instructorCtl.editId); // edit id
+app.post('/instructor/editImage', instructorCtl.editImage); // edit id
 app.post('/instructor/editName', instructorCtl.editName); // edit name
 app.post('/instructor/editClassName', instructorCtl.editClassName); // edit classes
+app.post('/instructor/editAll', instructorCtl.editAll); // edit classes
 app.post('/instructor/deleteClassName', instructorCtl.deleteClassName); // delete classes
 app.post('/instructor/addClassName', instructorCtl.addClassName); // add classes
 app.get('/instructor', instructorCtl.allData);

@@ -5,6 +5,7 @@ const schema = {
     name:{type:String},
     className:{type:Array},
     password: {type:String},
+    image: {type:String}
 };
 
 const instructor_schema = new mongoose.Schema(schema, {versionKey: false});

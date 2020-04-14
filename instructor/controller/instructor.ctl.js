@@ -8,13 +8,14 @@ module.exports = {
             name=null,
             className=null,
             password=null,
+            image="https://cdn0.iconfinder.com/data/icons/occupation-002/64/teacher-teach-occupation-avatar-512.png",
         } = req.body;
         const result= await Instructor.find({id}); // checks if instructor already exists
-        if(id===null || name ===null || className===null || password ===null) {
+        if(id===null || name ===null || className===null || password ===null || image===null) {
             res.json("בבקשה למלא את כל הפרטים")
         }
         if(result.length===0){
-        const instructor = new Instructor({id,name,className,password})
+        const instructor = new Instructor({id,name,className,password,image})
         console.log(instructor)
     
         instructor.save(function (err) {
@@ -32,6 +33,13 @@ module.exports = {
     async editId(req, res){  //edit id
         const {id=null, update=null} = req.body;
         const result =await Instructor.findOneAndUpdate({id},{$set:{id:update}},{});
+        if(result==null || id==="") res.json("not found")  // checks if instructor exist if exist then edit id
+        else if(result) res.json(result);
+        else res.status(404).send('not found');
+    },
+    async editImage(req, res){  //edit id
+        const {id=null, image=null} = req.body;
+        const result =await Instructor.findOneAndUpdate({id},{$set:{image:image}},{});
         if(result==null || id==="") res.json("not found")  // checks if instructor exist if exist then edit id
         else if(result) res.json(result);
         else res.status(404).send('not found');
@@ -63,6 +71,13 @@ module.exports = {
         const result = await Instructor.findOneAndUpdate({id},{$push:{className:className}})
         console.log(result);
         if(result==null) res.json("No products was found") // checks if instructor exist if exist then add class name
+        else if(result) res.json(result);
+        else res.status(404).send('not found');
+    },
+    async editAll(req, res){  //edit class name
+        const {id=null, changeId=null ,name=null} = req.body;
+        const result =await Instructor.findOneAndUpdate({id},{$set:{id:changeId, name:name}},{});
+        if(result==null || id==="") res.json("No products was found")  // checks if instructor exist if exist then edit class name
         else if(result) res.json(result);
         else res.status(404).send('not found');
     },
