@@ -35,6 +35,7 @@ export default class Login extends React.Component {
   }
 
   onPress() {
+    var count = 0;
     this.state.students.map(item => {
       if (item.name === this.state.name) {
         if (item.grade === this.state.grade) {
@@ -44,8 +45,13 @@ export default class Login extends React.Component {
         } else {
           this.setState({mistake: true});
         }
+      } else {
+        count = count + 1;
       }
     });
+    if (count === this.state.students.length) {
+      this.setState({mistake: true});
+    }
   }
 
   render() {
@@ -70,7 +76,7 @@ export default class Login extends React.Component {
             <View style={styles.inputView}>
               <TextInput
                 style={styles.inputText}
-                placeholder="שם ושם משפחה"
+                placeholder="שם פרטי ומשפחה"
                 placeholderTextColor="#003f5c"
                 onChangeText={text => this.setState({name: text})}
               />

@@ -18,37 +18,46 @@ export default class SignUp extends React.Component {
       grade: '',
       signed: -1, //0- go back, 1 - singed, 2 - registeration
       student: [],
-      exist: false,
+      mistake: 0, // 0 - correct, 1 - id already exists, 2 - didn't fill the entire form
     };
     this.SignUp = this.SignUp.bind(this);
   }
 
   SignUp() {
-    fetch('https://sensafe-student.herokuapp.com/admin/addStudent', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id: this.state.id,
-        name: this.state.name,
-        grade: this.state.grade,
-      }),
-    })
-      .then(response => response.json())
-      .then(responseJson => {
-        if (typeof responseJson === 'string') {
-          this.setState({exist: true});
-        } else {
-          this.setState({exist: false});
-          this.setState({student: responseJson});
-          this.setState({signed: 1});
-        }
+    if (
+      this.state.id === null ||
+      this.state.name === '' ||
+      this.state.grade === ''
+    ) {
+      this.setState({mistake: 2});
+    } else {
+      fetch('https://sensafe-student.herokuapp.com/admin/addStudent', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: this.state.id,
+          name: this.state.name,
+          grade: this.state.grade,
+        }),
       })
-      .catch(error => {
-        console.error(error);
-      });
+        .then(response => response.json())
+        .then(responseJson => {
+          if (typeof responseJson === 'string') {
+            this.setState({mistake: 1});
+            console.log(responseJson);
+          } else {
+            this.setState({mistake: 0});
+            this.setState({student: responseJson});
+            this.setState({signed: 1});
+          }
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    }
   }
 
   render() {
@@ -94,8 +103,10 @@ export default class SignUp extends React.Component {
               }}>
               <Text style={styles.loginText}>go back</Text>
             </TouchableOpacity>
-            {this.state.exist ? (
+            {this.state.mistake === 1 ? (
               <Text style={{color: 'white'}}>* כינוי קיים במערכת</Text>
+            ) : this.state.mistake === 2 ? (
+              <Text style={{color: 'white'}}>* נא למלא את כל הפרטים</Text>
             ) : null}
           </View>
         ) : (
