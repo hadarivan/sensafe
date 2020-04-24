@@ -19,7 +19,7 @@ export default class SignUp extends React.Component {
       password: '',
       signed: -1, //0- go back, 1 - singed, 2 - registeration
       instructor: [],
-      exist: false,
+      mistake: 0, // 0 - correct, 1 - id already exists, 2 - didn't fill the entire form
     };
     this.SignUp = this.SignUp.bind(this);
     this.fetchInstructor = this.fetchInstructor.bind(this);
@@ -42,9 +42,19 @@ export default class SignUp extends React.Component {
       .then(response => response.json())
       .then(responseJson => {
         if (typeof responseJson === 'string') {
-          this.setState({exist: true});
+          if (
+            this.state.id === null ||
+            this.state.name === '' ||
+            this.state.className.length === 0 ||
+            this.state.password === ''
+          ) {
+            this.setState({mistake: 2});
+          } else {
+            this.setState({mistake: 1});
+            console.log(responseJson);
+          }
         } else {
-          this.setState({exist: false});
+          this.setState({mistake: 0});
           this.fetchInstructor();
         }
       })
@@ -72,7 +82,7 @@ export default class SignUp extends React.Component {
       .catch(error => {
         console.error(error);
       });
-    this.setState({signed: true});
+    this.setState({signed: 1});
   }
   render() {
     return (
@@ -86,6 +96,7 @@ export default class SignUp extends React.Component {
             <Text style={styles.logo}>הרשמה</Text>
             <View style={styles.inputView}>
               <TextInput
+                keyboardType="numeric"
                 style={styles.inputText}
                 placeholder="תעודת זהות"
                 placeholderTextColor="#003f5c"
@@ -135,8 +146,10 @@ export default class SignUp extends React.Component {
               }}>
               <Text style={styles.loginText}>go back</Text>
             </TouchableOpacity>
-            {this.state.exist ? (
-              <Text style={{color: 'white'}}>*תעודת זהות קיימת במערכת</Text>
+            {this.state.mistake === 1 ? (
+              <Text style={{color: 'white'}}>* תעודת זהות קיימת במערכת</Text>
+            ) : this.state.mistake === 2 ? (
+              <Text style={{color: 'white'}}>* נא למלא את כל הפרטים</Text>
             ) : null}
           </View>
         ) : (

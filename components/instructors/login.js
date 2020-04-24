@@ -11,6 +11,7 @@ import {
 import Profile from '../instructors/profile';
 import SignUp from '../instructors/signup';
 import RnHash, {CONSTANTS} from 'react-native-hash';
+import * as Animatable from 'react-native-animatable';
 import User from '../user';
 export default class Login extends React.Component {
   constructor(props) {
@@ -57,60 +58,62 @@ export default class Login extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        {this.state.signed === 1 ? (
-          <Profile data={this.state.instructor} />
-        ) : this.state.signed === 2 ? (
-          <View>
-            <SignUp />
-          </View>
-        ) : this.state.signed === 0 ? (
-          <User />
-        ) : (
-          <View style={styles.container}>
-            <Text style={styles.logo}>SenSafe - מדריך</Text>
-            {this.state.instructor === null ? (
-              this.state.mistake ? (
-                <Text style={{color: 'white'}}>
-                  חלק מפרטי ההזדהות שהוקלדו אינם נכונים
-                </Text>
-              ) : null
-            ) : null}
-            <View style={styles.inputView}>
-              <TextInput
-                style={styles.inputText}
-                placeholder="תעודת זהות..."
-                placeholderTextColor="#003f5c"
-                onChangeText={text => this.setState({id: text})}
-              />
+      <Animatable.View useNativeDriver duration={1500} animation="fadeIn">
+        <View style={styles.container}>
+          {this.state.signed === 1 ? (
+            <Profile data={this.state.instructor} />
+          ) : this.state.signed === 2 ? (
+            <View>
+              <SignUp />
             </View>
-            <View style={styles.inputView}>
-              <TextInput
-                secureTextEntry
-                style={styles.inputText}
-                placeholder="סיסמא..."
-                placeholderTextColor="#003f5c"
-                onChangeText={text => this.setState({password: text})}
-              />
+          ) : this.state.signed === 0 ? (
+            <User />
+          ) : (
+            <View style={styles.container}>
+              <Text style={styles.logo}>SenSafe - מדריך</Text>
+              {this.state.instructor === null ? (
+                this.state.mistake ? (
+                  <Text style={{color: 'white'}}>
+                    חלק מפרטי ההזדהות שהוקלדו אינם נכונים
+                  </Text>
+                ) : null
+              ) : null}
+              <View style={styles.inputView}>
+                <TextInput
+                  style={styles.inputText}
+                  placeholder="תעודת זהות..."
+                  placeholderTextColor="#003f5c"
+                  onChangeText={text => this.setState({id: text})}
+                />
+              </View>
+              <View style={styles.inputView}>
+                <TextInput
+                  secureTextEntry
+                  style={styles.inputText}
+                  placeholder="סיסמא..."
+                  placeholderTextColor="#003f5c"
+                  onChangeText={text => this.setState({password: text})}
+                />
+              </View>
+              <TouchableOpacity style={styles.loginBtn} onPress={this.onPress}>
+                <Text style={styles.loginText}>LOGIN</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  this.setState({signed: 2});
+                }}>
+                <Text style={styles.loginText}>Signup</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  this.setState({signed: 0});
+                }}>
+                <Text style={styles.loginText}>go back</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.loginBtn} onPress={this.onPress}>
-              <Text style={styles.loginText}>LOGIN</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                this.setState({signed: 2});
-              }}>
-              <Text style={styles.loginText}>Signup</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                this.setState({signed: 0});
-              }}>
-              <Text style={styles.loginText}>go back</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
+          )}
+        </View>
+      </Animatable.View>
     );
   }
 }
@@ -118,6 +121,7 @@ export default class Login extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
     backgroundColor: '#003f5c',
     alignItems: 'center',
     justifyContent: 'center',
