@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { AppRegistry, TouchableHighlight, Modal, FlatList, ActivityIndicator, StyleSheet, View, Platform, Text, Alert } from 'react-native';
+import AnimatedLoader from 'react-native-animated-loader';
+import { AppRegistry, TouchableHighlight, FlatList, ActivityIndicator, StyleSheet, View, Platform, Text, Alert, TouchableOpacity } from 'react-native';
 
 
 export default class App extends Component {
@@ -44,23 +45,27 @@ export default class App extends Component {
           (this.state.loading)
             ?
             (<View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" />
-              <Text style={styles.loadingText}>Please Wait...</Text>
+               <AnimatedLoader
+                visible={true}
+                overlayColor="003f5c"
+                animationStyle={styles.lottie}
+                speed={1}
+                source={require('../student/images/18535-best-bike-guide-bicycle.json')}
+              />
             </View>)
             :
             (<View style={{ flex: 1 }}>
-               <View style={styles.Header}>
+              <View style={styles.Header}>
                   <Text style={styles.HeaderText}>{this.state.HeaderText}</Text>
-                </View>
+              </View>
             <View style ={styles.lawsHolder}>
               <FlatList keyExtractor={(item) => item.law}
-                key={(this.state.gridView) ? 1 : 0}
+                numColumns={(this.state.gridView) ? 1 : 0}
                 data={this.state.allTrafficLaws}
-                ItemSeparatorComponent = {this.FlatListItemSeparator}
                 renderItem={({ item }) =>
-                <View style ={styles.lawTextHolder}>
-                  <Text style={styles.lawText}>{item.law} </Text> 
-                </View>
+                  <View style ={styles.lawTextHolder}>
+                    <Text style={styles.lawText}>{item.law} </Text> 
+                  </View>
                 }/>
             </View>
         </View>)
@@ -74,8 +79,7 @@ const styles = StyleSheet.create(
   {
     container: {
       flex:1,
-      backgroundColor:'#006699',
-
+      backgroundColor:'#d3edea'
     },
     lawsHolder: {
       margin: 5,
@@ -89,26 +93,31 @@ const styles = StyleSheet.create(
       left: 0,
       bottom: 0,
       right: 0,
-      backgroundColor: 'rgba(0,0,0,0.2)',
+      backgroundColor: 'rgba(255,255,255,1)',
       paddingHorizontal: 10,
       paddingVertical: 13,
+      marginBottom:5,
+      borderRadius:5,
+      shadowColor: "#000",
+      shadowOffset: {
+          width: 0,
+          height: 1,
+      },
+      shadowOpacity: 0.10,
+      shadowRadius: 2.5,
+  
+      elevation: 2,
     },
     lawText: {
-      color: 'white'
+      color: 'black'
     },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center'
-    },
-    loadingText: {
-      paddingTop: 10,
-      fontSize: 18,
-      color: 'white'
+    lottie: {
+      width: 100,
+      height: 100
     },
     Header: {
       padding: 15,
-      backgroundColor: '#1ab2ff'
+      backgroundColor: '#93d1bc'
     },
     HeaderText: {
       color: 'white',
