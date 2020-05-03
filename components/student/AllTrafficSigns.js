@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { AppRegistry, Alert, TouchableHighlight,Image, Modal, FlatList, ActivityIndicator, StyleSheet, View, Platform, Text } from 'react-native';
+import AnimatedLoader from 'react-native-animated-loader';
+import { AppRegistry, Alert,Image, Modal, FlatList, StyleSheet, View, Platform, Text, TouchableHighlight, TouchableOpacity } from 'react-native';
 import TrafficSignImage from './TrafficSignImage'
 
 
 export default class AllTrafficSigns extends Component {
-
   constructor(props) {
     super(props);
     this.state = { 
@@ -41,9 +41,14 @@ export default class AllTrafficSigns extends Component {
         {
           (this.state.loading)
             ?
-            (<View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" />
-              <Text style={styles.loadingText}>Please Wait...</Text>
+            (<View style={styles.lottie}>
+              <AnimatedLoader
+                visible={true}
+                overlayColor="003f5c"
+                animationStyle={styles.lottie}
+                speed={1}
+                source={require('../student/images/18535-best-bike-guide-bicycle.json')}
+              />
             </View>)
             :
             (<View style={{ flex: 1}}>
@@ -59,8 +64,16 @@ export default class AllTrafficSigns extends Component {
                 }}>
                
               <View style={{flex:1}}>
-                  <TrafficSignImage imageURI={selectedObject.image} name={selectedObject.name}/>
-                  <Text style={styles.toDo}>{selectedObject.toDo}</Text>                        
+                <View style = {styles.textViewHolderOnPress}>
+                  <Text style={styles.textOnImageOnPress}>{selectedObject.name}</Text>
+                </View>
+                <View style={styles.imageHolderOnPress}>
+                  <TrafficSignImage imageURI={selectedObject.image} style={styles.imageOnPress} />
+                  <View style={styles.toDoContainer}>
+                    <Text style={styles.meaning}>משמעות התמרור</Text>
+                    <Text style={styles.toDo}>{selectedObject.toDo}</Text> 
+                  </View> 
+                </View>
               </View>
 
               <Text 
@@ -73,11 +86,14 @@ export default class AllTrafficSigns extends Component {
                   numColumns={this.state.gridView ? 2 : 1}
                   data={trafficSigns}
                   renderItem={({ item }) =>
-                    <TouchableHighlight onPress={() => {
+                    <TouchableOpacity onPress={() => {
                       this.displayModal(true,item.id);
                       }} style={{flex:1}}>
-                      <TrafficSignImage imageURI={item.image} name={item.name}/>
-                    </TouchableHighlight> 
+                      <TrafficSignImage imageURI={item.image}/>
+                      <View style={styles.textViewHolder}>
+                        <Text numberOfLines={1} style={styles.textOnImage}>{item.name}</Text>
+                      </View>
+                    </TouchableOpacity> 
                   }/>
             </View>)
         }
@@ -88,37 +104,89 @@ export default class AllTrafficSigns extends Component {
 
 const styles = StyleSheet.create(
   {  
-    container: {
+  container: {
     flex: 1,
-    backgroundColor:'#006699'
+    backgroundColor:'#b5e2ff'
+
   },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center'
-    },
-    loadingText: {
-      paddingTop: 10,
-      fontSize: 18,
-      color: 'white'
-    },
+  lottie: {
+    width: 100, 
+    height: 100
+  },
     Header: {
       padding: 15,
-      backgroundColor: '#1ab2ff'
+      backgroundColor: 'rgba(77,170,238,0.75)'
     },
     HeaderText: {
       color: 'white',
       textAlign: 'center',
       alignSelf: 'stretch'
     },
+    textViewHolderOnPress: {
+      position: 'relative',
+      left: 0,
+      top:0,
+      bottom: 0,
+      right: 0,
+      height:50,
+      backgroundColor: 'rgba(77,170,238,0.75)',
+      paddingHorizontal: 10,
+      paddingVertical: 9,
+      alignItems: 'center',
+    },
+    textOnImageOnPress: {
+      color: 'white',
+      padding: 5,
+      fontSize: 15
+    },
+    imageHolderOnPress: {
+      margin: 5,
+      marginBottom:35,
+      flex: 1,
+      position: 'relative',
+      justifyContent: 'center'
+    },
+    imageOnPress: {
+        padding:25,
+        alignItems: 'center'
+    },
+    toDoContainer:{
+        paddingTop:25
+        
+    },
+    meaning:{
+      paddingRight:15,
+      fontSize:18,
+      fontWeight:'bold',
+      color:'#000000'
+    },
     toDo: {
-      fontSize: 20,
-      padding: 25
+      fontSize: 18,
+      paddingLeft:15,
+      paddingRight:15,
+      paddingBottom:30
     },
     closeText: {
-      fontSize: 24,
+      fontSize: 26,
       color: '#00479e',
       textAlign: 'center',
+    },
+    textViewHolder: {
+      position: 'relative',
+      left: 0,
+      top:0,
+      bottom: 0,
+      right: 0,
+      backgroundColor: 'rgba(77,170,238,0.75)',
+      marginHorizontal: 4,
+      paddingVertical: 9,
+      borderBottomLeftRadius:5,
+      borderBottomRightRadius:5,
+      alignItems: 'center',
+      marginBottom:5
+    },
+    textOnImage: {
+      color: 'white'
     }
   });
  
