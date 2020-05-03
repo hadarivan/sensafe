@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AppRegistry, TouchableOpacity, Image, FlatList, ActivityIndicator, StyleSheet, View, Platform, Text } from 'react-native';
+import {Image, StyleSheet, View } from 'react-native';
 
 export default class TrafficSignImage extends Component {
 
