@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import AnimatedLoader from 'react-native-animated-loader';
-import { AppRegistry, TouchableHighlight, FlatList, ActivityIndicator, StyleSheet, View, Platform, Text, Alert, TouchableOpacity } from 'react-native';
+import { FlatList,StyleSheet, View, Text} from 'react-native';
 
 
 export default class App extends Component {
@@ -25,7 +25,7 @@ export default class App extends Component {
         console.error(error);
       });
   }
-  
+
   render() {
     return (
       <View style={styles.container} >
