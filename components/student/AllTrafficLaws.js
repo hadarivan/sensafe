@@ -25,19 +25,7 @@ export default class App extends Component {
         console.error(error);
       });
   }
-
-  FlatListItemSeparator = () => {
-    return (
-      <View
-        style={{
-          height: 1,
-          width: "100%",
-          backgroundColor: "#607D8B",
-        }}
-      />
-    );
-  }
-
+  
   render() {
     return (
       <View style={styles.container} >
