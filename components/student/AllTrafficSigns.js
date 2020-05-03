@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import AnimatedLoader from 'react-native-animated-loader';
-import { AppRegistry, Alert,Image, Modal, FlatList, StyleSheet, View, Platform, Text, TouchableHighlight, TouchableOpacity } from 'react-native';
+import {  Alert, Modal, FlatList, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import TrafficSignImage from './TrafficSignImage'
 
 
