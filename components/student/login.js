@@ -6,10 +6,14 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  Image,
+  Dimensions,
 } from 'react-native';
 import Menu from '../student/menu';
 import SignUp from '../student/signup';
 import User from '../user';
+let screenWidth = Dimensions.get('window').width;
+let screenHeight = Dimensions.get('window').height;
 export default class Login extends React.Component {
   constructor(props) {
     super(props);
@@ -67,43 +71,58 @@ export default class Login extends React.Component {
           <User />
         ) : (
           <View style={styles.container}>
-            <Text style={styles.logo}>SenSafe - תלמיד</Text>
-            {this.state.mistake ? (
-              <Text style={{color: 'white'}}>
-                חלק מפרטי ההזדהות שהוקלדו אינם נכונים
-              </Text>
-            ) : null}
-            <View style={styles.inputView}>
-              <TextInput
-                style={styles.inputText}
-                placeholder="שם פרטי ומשפחה"
-                placeholderTextColor="#003f5c"
-                onChangeText={text => this.setState({name: text})}
-              />
-            </View>
-            <View style={styles.inputView}>
-              <TextInput
-                style={styles.inputText}
-                placeholder="כיתה"
-                placeholderTextColor="#003f5c"
-                onChangeText={text => this.setState({grade: text})}
-              />
-            </View>
-            <TouchableOpacity style={styles.loginBtn} onPress={this.onPress}>
-              <Text style={styles.loginText}>LOGIN</Text>
-            </TouchableOpacity>
+            <Image
+              style={{width: screenWidth, height: 350, top: 17}}
+              source={require('../student/images/test.jpeg')}
+            />
             <TouchableOpacity
-              onPress={() => {
-                this.setState({signed: 2});
-              }}>
-              <Text style={styles.loginText}>Signup</Text>
+              onPress={() => this.setState({signed: 0})}
+              style={{bottom: 300, right: 150}}>
+              <Image
+                source={require('../student/images/logout.png')}
+                style={styles.logout}
+              />
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                this.setState({signed: 0});
-              }}>
-              <Text style={styles.loginText}>go back</Text>
-            </TouchableOpacity>
+            <Image
+              style={{
+                width: 280,
+                height: 110,
+                bottom: 163,
+              }}
+              source={require('./images/logo.png')}
+            />
+            <View style={{bottom: 100}}>
+              {this.state.mistake ? (
+                <Text style={{color: 'white', textAlign: 'center'}}>
+                  חלק מפרטי ההזדהות שהוקלדו אינם נכונים
+                </Text>
+              ) : null}
+              <View style={styles.inputView}>
+                <TextInput
+                  style={styles.inputText}
+                  placeholder="שם פרטי ומשפחה"
+                  placeholderTextColor="#003f5c"
+                  onChangeText={text => this.setState({name: text})}
+                />
+              </View>
+              <View style={styles.inputView}>
+                <TextInput
+                  style={styles.inputText}
+                  placeholder="כיתה"
+                  placeholderTextColor="#003f5c"
+                  onChangeText={text => this.setState({grade: text})}
+                />
+              </View>
+              <TouchableOpacity style={styles.loginBtn} onPress={this.onPress}>
+                <Text style={styles.loginText}>התחברות</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  this.setState({signed: 2});
+                }}>
+                <Text style={styles.loginText}>הרשמה</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </View>
@@ -113,11 +132,9 @@ export default class Login extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    flex: 1,
-    backgroundColor: '#003f5c',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#258c4e',
   },
   logo: {
     fontWeight: 'bold',
@@ -127,32 +144,35 @@ const styles = StyleSheet.create({
   },
   inputView: {
     width: 300,
-    backgroundColor: '#465881',
+    backgroundColor: 'white',
     borderRadius: 25,
     height: 50,
-    marginBottom: 20,
+    marginBottom: 30,
     justifyContent: 'center',
     padding: 20,
   },
   inputText: {
     height: 50,
-    color: 'white',
+    color: 'black',
   },
-  forgot: {
-    color: 'white',
-    fontSize: 11,
+  logout: {
+    width: 30,
+    height: 30,
+    alignSelf: 'center',
   },
   loginBtn: {
     width: 200,
-    backgroundColor: '#fb5b5a',
+    backgroundColor: 'white',
     borderRadius: 25,
     height: 50,
+    alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 40,
     marginBottom: 10,
   },
   loginText: {
-    color: 'white',
+    alignSelf: 'center',
+    fontSize: 25,
+    color: 'black',
   },
 });

@@ -1,19 +1,33 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Dimensions,
+  Image,
+} from 'react-native';
 import Login from '../student/login';
 import Quiz from '../student/quiz';
 import Simulation from '../student/Simulation';
+import AllTrafficSigns from '../student/allTrafficSigns';
+import AllTrafficLaws from '../student/allTrafficLaws';
+import StudentProfile from '../student/studentProfile';
+
+let screenWidth = Dimensions.get('window').width;
+let screenHeight = Dimensions.get('window').height;
 export default class Menu extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       logout: false,
-      screen: 0, // 0 - menu , 1-traffic signs , 2 - traffic laws , 3 - quiz , 4 - simulation
+      screen: 0, // 0 - menu , 1-traffic signs , 2 - traffic laws , 3 - quiz , 4 - simulation, 5 - profile
     };
   }
 
   render() {
+    console.log(this.props.data.quizGrade);
     return (
       <View style={styles.container}>
         {this.state.screen === 0 ? (
@@ -21,59 +35,110 @@ export default class Menu extends React.Component {
             <Login />
           ) : (
             <View>
-              <Text style={styles.logo}>sensafe</Text>
+              <View
+                style={[
+                  styles.header,
+                  {backgroundColor: this.props.data.profileColor, opacity: 0.7},
+                ]}
+              />
+              <TouchableOpacity
+                onPress={this.setState({screen: 5})}
+                style={[
+                  styles.avatar,
+                  {backgroundColor: this.props.data.profileColor},
+                ]}>
+                <Text style={{fontSize: 60, alignSelf: 'center', top: 20}}>
+                  {this.props.data.name.charAt(0)}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => this.setState({logout: true})}
+                style={{bottom: 180, right: 150}}>
+                <Image
+                  source={require('../student/images/logout.png')}
+                  style={styles.logout}
+                />
+              </TouchableOpacity>
               <Text style={styles.logo}>שלום {this.props.data.name}</Text>
               <View
                 style={{
                   flex: 1,
+                  bottom: 50,
                   flexDirection: 'row',
                   flexWrap: 'wrap',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  width: screenWidth,
                 }}>
                 <TouchableOpacity
-                  style={styles.loginBtn}
+                  style={styles.menuBtn}
                   onPress={() => {
                     this.setState({screen: 1});
                   }}>
-                  <Text style={styles.loginText}>תמרורים</Text>
+                  <Image
+                    style={{width: 100, height: 100}}
+                    source={require('./images/stop.png')}
+                  />
+                  <Text style={styles.menuText}>תמרורים</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.loginBtn}
+                  style={styles.menuBtn}
                   onPress={() => {
                     this.setState({screen: 2});
                   }}>
-                  <Text style={styles.loginText}>חוקים</Text>
+                  <Image
+                    style={{width: 100, height: 100}}
+                    source={require('./images/education.png')}
+                  />
+                  <Text style={styles.menuText}>חוקים</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.loginBtn}
+                  style={styles.menuBtn}
                   onPress={() => {
                     this.setState({screen: 3});
                   }}>
-                  <Text style={styles.loginText}>בוחן</Text>
+                  <Image
+                    style={{width: 100, height: 100}}
+                    source={require('./images/tablet.png')}
+                  />
+                  <Text style={styles.menuText}>בוחן</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.loginBtn}
+                  disabled={this.props.data.quizGrade >= 60 ? false : true}
+                  style={{
+                    width: screenWidth / 2 - 5,
+                    backgroundColor:
+                      this.props.data.quizGrade >= 60 ? 'green' : '#fb5b5a',
+                    height: screenWidth / 2 - 5,
+                    borderWidth: 2,
+                    borderColor: 'black',
+                    borderRadius: 10,
+                    margin: 2,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
                   onPress={() => {
                     this.setState({screen: 4});
                   }}>
-                  <Text style={styles.loginText}>סימולציה</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{width: 200}}
-                  onPress={() => {
-                    this.setState({logout: true});
-                  }}>
-                  <Text style={styles.loginText}>התנתק</Text>
+                  <Image
+                    style={{width: 100, height: 100}}
+                    source={require('./images/transport.png')}
+                  />
+                  <Text style={styles.menuText}>סימולציה</Text>
                 </TouchableOpacity>
               </View>
             </View>
           )
-        ) : this.state.screen === 1 ? null : this.state.screen ===
-          2 ? null : this.state.screen === 3 ? (
+        ) : this.state.screen === 1 ? (
+          <AllTrafficSigns data={this.props.data} />
+        ) : this.state.screen === 2 ? (
+          <AllTrafficLaws data={this.props.data} />
+        ) : this.state.screen === 3 ? (
           <Quiz data={this.props.data} />
-        ) : (
+        ) : this.state.screen === 4 ? (
           <Simulation />
+        ) : (
+          <StudentProfile data={this.props.data} />
         )}
       </View>
     );
@@ -83,28 +148,52 @@ export default class Menu extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#003f5c',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#e9e9e9',
+    width: screenWidth,
+    height: screenHeight,
+  },
+  avatar: {
+    bottom: 60,
+    width: 130,
+    height: 130,
+    borderRadius: 63,
+    borderWidth: 4,
+    borderColor: 'white',
+    alignSelf: 'center',
+  },
+  logout: {
+    width: 30,
+    height: 30,
+    alignSelf: 'center',
+  },
+  header: {
+    height: 80,
+    width: screenWidth,
+    borderBottomWidth: 4,
+    borderColor: 'white',
   },
   logo: {
+    bottom: 60,
     fontWeight: 'bold',
     fontSize: 35,
-    color: 'white',
-    marginBottom: 40,
+    color: 'black',
+    textAlign: 'center',
   },
-  loginBtn: {
-    width: 150,
-    backgroundColor: '#fb5b5a',
-    borderRadius: 25,
-    height: 150,
+  menuBtn: {
+    borderRadius: 10,
+    width: screenWidth / 2 - 5,
+    borderWidth: 2,
+    borderColor: 'black',
+    backgroundColor: 'white',
+    height: screenWidth / 2 - 5,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 40,
-    marginBottom: 10,
-    marginLeft: 10,
+    margin: 2,
   },
-  loginText: {
-    color: 'white',
+  menuText: {
+    color: 'black',
+    fontSize: 20,
   },
 });

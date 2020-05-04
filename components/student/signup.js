@@ -6,9 +6,13 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  Image,
+  Dimensions,
 } from 'react-native';
 import Menu from '../student/menu';
 import Login from '../student/login';
+let screenWidth = Dimensions.get('window').width;
+let screenHeight = Dimensions.get('window').height;
 export default class SignUp extends React.Component {
   constructor(props) {
     super(props);
@@ -67,6 +71,14 @@ export default class SignUp extends React.Component {
           <Menu data={this.state.student} />
         ) : this.state.signed === -1 ? (
           <View style={styles.container}>
+            <TouchableOpacity
+              onPress={() => this.setState({signed: 0})}
+              style={{bottom: 100, right: 150}}>
+              <Image
+                source={require('../student/images/logout.png')}
+                style={styles.logout}
+              />
+            </TouchableOpacity>
             <Text style={styles.logo}>הרשמה</Text>
             <View style={styles.inputView}>
               <TextInput
@@ -97,12 +109,6 @@ export default class SignUp extends React.Component {
             <TouchableOpacity style={styles.loginBtn} onPress={this.SignUp}>
               <Text style={styles.loginText}>הרשמה</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                this.setState({signed: 0});
-              }}>
-              <Text style={styles.loginText}>go back</Text>
-            </TouchableOpacity>
             {this.state.mistake === 1 ? (
               <Text style={{color: 'white'}}>* כינוי קיים במערכת</Text>
             ) : this.state.mistake === 2 ? (
@@ -120,9 +126,16 @@ export default class SignUp extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#003f5c',
+    backgroundColor: '#258c4e',
     alignItems: 'center',
     justifyContent: 'center',
+    width: screenWidth,
+    height: screenHeight,
+  },
+  logout: {
+    width: 30,
+    height: 30,
+    alignSelf: 'center',
   },
   logo: {
     fontWeight: 'bold',
@@ -132,7 +145,7 @@ const styles = StyleSheet.create({
   },
   inputView: {
     width: 300,
-    backgroundColor: '#465881',
+    backgroundColor: 'white',
     borderRadius: 25,
     height: 50,
     marginBottom: 20,
@@ -141,11 +154,11 @@ const styles = StyleSheet.create({
   },
   inputText: {
     height: 50,
-    color: 'white',
+    color: 'black',
   },
   loginBtn: {
     width: 200,
-    backgroundColor: '#fb5b5a',
+    backgroundColor: 'white',
     borderRadius: 25,
     height: 50,
     alignItems: 'center',
@@ -154,6 +167,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   loginText: {
-    color: 'white',
+    color: 'black',
   },
 });
