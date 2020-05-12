@@ -5,14 +5,15 @@ import {
   Text,
   StyleSheet,
   Image,
-  Button,
-  TextInput,
+  ProgressBarAndroid,
+  ProgressViewIOS,
   TouchableOpacity,
   Dimensions,
   ScrollView,
+  Platform,
 } from 'react-native';
-
-import Swiper from 'react-native-swiper';
+import AnimatedLoader from 'react-native-animated-loader';
+import Menu from '../student/menu';
 let screenWidth = Dimensions.get('window').width;
 let screenHeight = Dimensions.get('window').height;
 export default class Question extends React.Component {
@@ -20,144 +21,423 @@ export default class Question extends React.Component {
     super();
 
     this.state = {
-      level1: [],
-      level2: [],
-      level3: [],
+      level: [],
       isLoaded: false,
+      back: false,
       backgroundColor: 'white',
       clickedId: null,
+      quizGrade: 0,
+      countQuestion: 0,
+      clicked: 0,
+      progressBarProgress: 0.0,
     };
     this.changeLoad = this.changeLoad.bind(this);
-    this.changeColor = this.changeColor.bind(this);
+    this.calculateQuizGrade = this.calculateQuizGrade.bind(this);
+    this.changeStudentQuizGrade = this.changeStudentQuizGrade.bind(this);
   }
 
   componentDidMount() {
-    fetch('https://sensafe-quiz.herokuapp.com/student/level1') // questions level 1
-      .then(response => response.json())
-      .then(json => {
-        this.setState({level1: json});
-      })
-      .catch(error => console.error(error));
-
-    fetch('https://sensafe-quiz.herokuapp.com/student/level2') // questions level 2
-      .then(response => response.json())
-      .then(json => {
-        this.setState({level2: json});
-      })
-      .catch(error => console.error(error));
-
-    fetch('https://sensafe-quiz.herokuapp.com/student/level3') // questions level 3
-      .then(response => response.json())
-      .then(json => {
-        this.setState({level3: json});
-      })
-      .catch(error => console.error(error));
+    if (this.props.data.quizLevel === 1) {
+      fetch('https://sensafe-quiz.herokuapp.com/student/level1') // questions level 1
+        .then(response => response.json())
+        .then(json => {
+          this.setState({level: json});
+        })
+        .catch(error => console.error(error));
+    }
+    if (this.props.data.quizLevel === 2) {
+      fetch('https://sensafe-quiz.herokuapp.com/student/level2') // questions level 2
+        .then(response => response.json())
+        .then(json => {
+          this.setState({level: json});
+        })
+        .catch(error => console.error(error));
+    }
+    if (this.props.data.quizLevel === 3) {
+      fetch('https://sensafe-quiz.herokuapp.com/student/level3') // questions level 3
+        .then(response => response.json())
+        .then(json => {
+          this.setState({level: json});
+        })
+        .catch(error => console.error(error));
+    }
     this.changeLoad();
   }
   changeLoad() {
     this.setState({isLoaded: true});
   }
 
-  changeColor(isCorrect, clickedId) {
-    console.log(clickedId);
-    isCorrect
-      ? (this.setState({backgroundColor: 'green'}),
-        this.setState({clickedId: clickedId}))
-      : (this.setState({backgroundColor: 'red'}),
-        this.setState({clickedId: clickedId}));
-    console.log(this.state.clickedId);
+  calculateQuizGrade(answerRight, question) {
+    answerRight
+      ? this.setState(prevState => {
+          return {quizGrade: prevState.quizGrade + 10};
+        })
+      : fetch('https://sensafe-student.herokuapp.com/addQuizMistakes', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: this.props.data.id,
+            quizMistake: question,
+          }),
+        });
   }
 
+  changeStudentQuizGrade() {
+    fetch('https://sensafe-student.herokuapp.com/editQuizGrade', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: this.props.data.id,
+        quizGrade: this.state.quizGrade,
+      }),
+    });
+    if (this.state.quizGrade >= 60) {
+      if (this.props.data.quizLevel === 1) {
+        fetch('https://sensafe-student.herokuapp.com/editAchievement', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: this.props.data.id,
+            _id: 1,
+            isDone: true,
+          }),
+        });
+      }
+      if (this.props.data.quizLevel === 2) {
+        fetch('https://sensafe-student.herokuapp.com/editAchievement', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: this.props.data.id,
+            _id: 2,
+            isDone: true,
+          }),
+        });
+      }
+      if (this.props.data.quizLevel < 3) {
+        fetch('https://sensafe-student.herokuapp.com/editQuizLevel', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: this.props.data.id,
+            quizLevel: this.props.data.quizLevel + 1,
+          }),
+        });
+      }
+      fetch('https://sensafe-student.herokuapp.com/editFailCount', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: this.props.data.id,
+          failCount: 0,
+        }),
+      });
+    }
+    if (this.state.quizGrade === 100) {
+      fetch('https://sensafe-student.herokuapp.com/editAchievement', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: this.props.data.id,
+          _id: 3,
+          isDone: true,
+        }),
+      });
+    }
+  }
+
+  changeProgress = () => {
+    this.setState({progressBarProgress: this.state.progressBarProgress + 10});
+  };
+
   render() {
-    //   check what level the student is and show - for now we put level 1.
-    var questions = this.state.level1;
     return (
-      <ScrollView>
-        <View style={styles.container}>
-          {this.state.isLoaded ? (
-            <ScrollView horizontal={true} pagingEnabled={true}>
-              {questions.map(question => {
+      <View style={styles.container}>
+        {this.state.isLoaded ? (
+          this.state.countQuestion !== 10 ? (
+            <ScrollView
+              horizontal={true}
+              showsHorizontalScrollIndicator={true}
+              pagingEnabled={true}>
+              {this.state.level.map(question => {
                 return (
                   <View key={question._id} style={styles.container}>
-                    <Text style={styles.question}>{question.question}</Text>
-                    {question.image ? (
-                      <Image
-                        source={{uri: question.image}}
-                        style={styles.image}
-                      />
-                    ) : null}
-                    <TouchableOpacity
-                      style={styles.choice}
-                      onPress={() => {
-                        question.answers[0].isRight
-                          ? (alert('correct'),
-                            this.setState({isCorrect0: true}))
-                          : this.setState({isCorrect0: false});
-                      }}>
-                      <Text style={styles.answer}>
-                        {question.answers[0].answer}
+                    <View style={styles.window}>
+                      <Text style={{marginTop: 15}}>
+                        {this.state.countQuestion}/10
                       </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.choice}
-                      onPress={() => {
-                        question.answers[1].isRight
-                          ? (alert('correct'),
-                            this.setState({isCorrect1: true}))
-                          : this.setState({isCorrect1: false});
-                      }}>
-                      <Text style={styles.answer}>
-                        {question.answers[1].answer}
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.choice}
-                      onPress={() => {
-                        question.answers[2].isRight
-                          ? (alert('correct'),
-                            this.setState({isCorrect2: true}))
-                          : this.setState({isCorrect2: false});
-                      }}>
-                      <Text style={styles.answer}>
-                        {question.answers[2].answer}
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.choice}
-                      onPress={() => {
-                        question.answers[3].isRight
-                          ? (alert('correct'),
-                            this.setState({isCorrect3: true}))
-                          : this.setState({isCorrect3: false});
-                      }}>
-                      <Text style={styles.answer}>
-                        {question.answers[3].answer}
-                      </Text>
-                    </TouchableOpacity>
+                      {Platform.OS === 'android' ? (
+                        <ProgressBarAndroid
+                          progress={this.state.progressBarProgress}
+                          styleAttr="Horizontal"
+                          indeterminate={false}
+                          style={styles.progress}
+                        />
+                      ) : (
+                        <ProgressViewIOS
+                          progress={this.state.progressBarProgress}
+                          style={styles.progress}
+                        />
+                      )}
+                      <Text style={styles.question}>{question.question}</Text>
+                      {question.image ? (
+                        <Image
+                          source={{uri: question.image}}
+                          style={styles.image}
+                        />
+                      ) : null}
+                      <TouchableOpacity
+                        style={
+                          this.state.clicked === 1 &&
+                          question._id === this.state.clickedId &&
+                          question.answers[0].isRight
+                            ? styles.styleForCorrectChoice
+                            : this.state.clicked === 1 &&
+                              question._id === this.state.clickedId &&
+                              !question.answers[0].isRight
+                            ? styles.styleForWrongChoice
+                            : styles.styleForDefaultChoice
+                        }
+                        onPress={() => {
+                          this.calculateQuizGrade(
+                            question.answers[0].isRight,
+                            question.question,
+                          );
+                          this.setState({
+                            countQuestion: this.state.countQuestion + 1,
+                            clickedId: question._id,
+                            clicked: 1,
+                            progressBarProgress:
+                              this.state.progressBarProgress + 0.1,
+                          });
+                        }}>
+                        {question.answers[0].answer.includes('http') ? (
+                          <Image
+                            style={styles.imageAnswer}
+                            source={{uri: question.answers[0].answer}}
+                          />
+                        ) : (
+                          <Text style={styles.answer}>
+                            {question.answers[0].answer}
+                          </Text>
+                        )}
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={
+                          this.state.clicked === 2 &&
+                          question._id === this.state.clickedId &&
+                          question.answers[1].isRight
+                            ? styles.styleForCorrectChoice
+                            : this.state.clicked === 2 &&
+                              question._id === this.state.clickedId &&
+                              !question.answers[1].isRight
+                            ? styles.styleForWrongChoice
+                            : styles.styleForDefaultChoice
+                        }
+                        onPress={() => {
+                          this.calculateQuizGrade(
+                            question.answers[1].isRight,
+                            question.question,
+                          );
+                          this.setState({
+                            countQuestion: this.state.countQuestion + 1,
+                            clickedId: question._id,
+                            clicked: 2,
+                            progressBarProgress:
+                              this.state.progressBarProgress + 0.1,
+                          });
+                        }}>
+                        {question.answers[1].answer.includes('http') ? (
+                          <Image
+                            style={styles.imageAnswer}
+                            source={{uri: question.answers[1].answer}}
+                          />
+                        ) : (
+                          <Text style={styles.answer}>
+                            {question.answers[1].answer}
+                          </Text>
+                        )}
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={
+                          this.state.clicked === 3 &&
+                          question._id === this.state.clickedId &&
+                          question.answers[2].isRight
+                            ? styles.styleForCorrectChoice
+                            : this.state.clicked === 3 &&
+                              question._id === this.state.clickedId &&
+                              !question.answers[2].isRight
+                            ? styles.styleForWrongChoice
+                            : styles.styleForDefaultChoice
+                        }
+                        onPress={() => {
+                          this.calculateQuizGrade(
+                            question.answers[2].isRight,
+                            question.question,
+                          );
+                          this.setState({
+                            countQuestion: this.state.countQuestion + 1,
+                            clickedId: question._id,
+                            clicked: 3,
+                            progressBarProgress:
+                              this.state.progressBarProgress + 0.1,
+                          });
+                        }}>
+                        {question.answers[2].answer.includes('http') ? (
+                          <Image
+                            style={styles.imageAnswer}
+                            source={{uri: question.answers[2].answer}}
+                          />
+                        ) : (
+                          <Text style={styles.answer}>
+                            {question.answers[2].answer}
+                          </Text>
+                        )}
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={
+                          this.state.clicked === 4 &&
+                          question._id === this.state.clickedId &&
+                          question.answers[3].isRight
+                            ? styles.styleForCorrectChoice
+                            : this.state.clicked === 4 &&
+                              question._id === this.state.clickedId &&
+                              !question.answers[3].isRight
+                            ? styles.styleForWrongChoice
+                            : styles.styleForDefaultChoice
+                        }
+                        onPress={() => {
+                          this.calculateQuizGrade(
+                            question.answers[3].isRight,
+                            question.question,
+                          );
+                          this.setState({
+                            countQuestion: this.state.countQuestion + 1,
+                            clickedId: question._id,
+                            clicked: 4,
+                            progressBarProgress:
+                              this.state.progressBarProgress + 0.1,
+                          });
+                        }}>
+                        {question.answers[3].answer.includes('http') ? (
+                          <Image
+                            style={styles.imageAnswer}
+                            source={{uri: question.answers[3].answer}}
+                          />
+                        ) : (
+                          <Text style={styles.answer}>
+                            {question.answers[3].answer}
+                          </Text>
+                        )}
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 );
               })}
             </ScrollView>
-          ) : null}
-        </View>
-      </ScrollView>
+          ) : this.state.back ? (
+            <Menu data={this.props.data} />
+          ) : (
+            <View>
+              <TouchableOpacity onPress={() => this.setState({back: true})}>
+                <Image
+                  style={styles.back}
+                  source={require('../images/logout.png')}
+                />
+              </TouchableOpacity>
+              <View style={styles.window}>
+                {this.state.quizGrade === 100 ? (
+                  <Image
+                    style={styles.finalScore}
+                    source={require('../images/gold.png')}
+                  />
+                ) : this.state.quizGrade >= 80 ? (
+                  <Image
+                    style={styles.finalScore}
+                    source={require('../images/silver.png')}
+                  />
+                ) : this.state.quizGrade >= 60 ? (
+                  <Image
+                    style={styles.finalScore}
+                    source={require('../images/bronze.png')}
+                  />
+                ) : (
+                  <Image
+                    style={styles.finalScore}
+                    source={require('../images/smileys.png')}
+                  />
+                )}
+                <Text style={styles.score}>
+                  הציון שלך בבוחן הוא: {this.state.quizGrade}
+                </Text>
+                {this.changeStudentQuizGrade()}
+              </View>
+            </View>
+          )
+        ) : (
+          <View style={styles.container}>
+            <AnimatedLoader
+              visible={true}
+              overlayColor="003f5c"
+              animationStyle={styles.lottie}
+              speed={1}
+              source={require('../images/18535-best-bike-guide-bicycle.json')}
+            />
+          </View>
+        )}
+      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    marginTop: 20,
     width: screenWidth,
     height: screenHeight,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#9DD6EB',
+    backgroundColor: '#e0bbe4',
+  },
+  window: {
+    marginLeft: 5,
+    backgroundColor: 'white',
+    width: 380,
+    minHeight: 400,
+    borderRadius: 30,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 2.5,
+    elevation: 2,
   },
   image: {
-    height: 250,
-    width: 250,
+    height: 200,
+    width: 200,
     margin: 20,
     justifyContent: 'center',
   },
@@ -166,18 +446,71 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 30,
   },
-  choice: {
-    width: 300,
+  styleForCorrectChoice: {
+    width: 340,
     minHeight: 50,
-    backgroundColor: 'white',
+    backgroundColor: 'green',
+    alignItems: 'center',
+    borderRadius: 15,
     marginBottom: 10,
+    justifyContent: 'center',
+  },
+  styleForWrongChoice: {
+    width: 340,
+    minHeight: 50,
+    backgroundColor: 'red',
+    borderRadius: 15,
+    marginBottom: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  styleForDefaultChoice: {
+    width: 340,
+    minHeight: 50,
+    backgroundColor: '#957dad',
+    alignItems: 'center',
+    borderRadius: 15,
+    marginBottom: 10,
+    justifyContent: 'center',
   },
   question: {
     fontSize: 30,
+    width: 350,
     textAlign: 'center',
+    marginBottom: 30,
   },
   answer: {
+    alignSelf: 'center',
+    width: 340,
     textAlign: 'center',
+    color: 'white',
   },
+  imageAnswer: {
+    height: 100,
+    width: 100,
+  },
+  progress: {
+    marginTop: 5,
+    marginBottom: 15,
+    width: 200,
+  },
+  finalScore: {
+    height: 350,
+    width: 350,
+    marginTop: 20,
+  },
+  score: {
+    fontSize: 30,
+    marginTop: 15,
+  },
+  lottie: {
+    width: 100,
+    height: 100,
+  },
+  back: {
+    width: 30,
+    height: 30,
+    position: 'absolute',
+    bottom: 100,
+  }.
 });
-
