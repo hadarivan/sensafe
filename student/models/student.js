@@ -11,7 +11,9 @@ const schema = {
     quizGrade: {type:Number},
     quizMistakes:{type:Array},
     failCount:{type:Number},
+    profileColor:{type:String},
     simMistakes: {type:Array},
+    simCount:{type:Number},
 };
 
 const students_schema = new mongoose.Schema(schema, {versionKey: false});
