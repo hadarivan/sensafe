@@ -27,6 +27,7 @@ app.post('/editQuizLevel', studentCtl.editStudentQuizLevel); //edit student quiz
 app.post('/editQuizGrade', studentCtl.editStudentQuizGrade); //edit student quiz grade
 app.post('/addQuizMistakes', studentCtl.addStudentQuizMistakes); //edit student quiz mistakes
 app.post('/editFailCount', studentCtl.editStudentFailCount); //count the number of times the student fail in the quiz on the same level
+app.post('/editSimCount', studentCtl.editStudentSimCount); //count the number of times the student did simulation track
 app.post('/addSimMistakes', studentCtl.addStudentSimMistakes); //edit student simulation track mistakes
 
 app.all('*', studentCtl.routeNotFound);
