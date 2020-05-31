@@ -18,11 +18,10 @@ export default class Login extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      id: null,
+      id: '',
       students: [],
       student: null,
       grade: '',
-      name: '',
       signed: -1, //0- go back, 1 - singed, 2 - registeration
       mistake: false,
     };
@@ -41,7 +40,7 @@ export default class Login extends React.Component {
   onPress() {
     var count = 0;
     this.state.students.map(item => {
-      if (item.name === this.state.name) {
+      if (item.id === this.state.id) {
         if (item.grade === this.state.grade) {
           this.setState({student: item});
           console.log(this.state.grade);
@@ -69,7 +68,7 @@ export default class Login extends React.Component {
           </View>
         ) : this.state.signed === 0 ? (
           <User />
-        ) : (
+        ) : this.state.students != null ? (
           <View style={styles.container}>
             <Image
               style={{width: screenWidth, height: 350, top: 17}}
@@ -100,9 +99,9 @@ export default class Login extends React.Component {
               <View style={styles.inputView}>
                 <TextInput
                   style={styles.inputText}
-                  placeholder="שם פרטי ומשפחה"
+                  placeholder="כינוי"
                   placeholderTextColor="#003f5c"
-                  onChangeText={text => this.setState({name: text})}
+                  onChangeText={text => this.setState({id: text})}
                 />
               </View>
               <View style={styles.inputView}>
@@ -124,7 +123,7 @@ export default class Login extends React.Component {
               </TouchableOpacity>
             </View>
           </View>
-        )}
+        ) : null}
       </View>
     );
   }
