@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {
   StyleSheet,
@@ -5,10 +6,14 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  Image,
+  Dimensions,
 } from 'react-native';
 import Profile from '../instructors/profile';
 import Login from '../instructors/login';
-import RnHash, {CONSTANTS} from 'react-native-hash';
+let screenWidth = Dimensions.get('window').width;
+let screenHeight = Dimensions.get('window').height;
+import {JSHash, CONSTANTS} from 'react-native-hash';
 export default class SignUp extends React.Component {
   constructor(props) {
     super(props);
@@ -93,6 +98,14 @@ export default class SignUp extends React.Component {
           ) : null
         ) : this.state.signed === -1 ? (
           <View style={styles.container}>
+            <TouchableOpacity
+              onPress={() => this.setState({signed: 0})}
+              style={{bottom: 70, right: 150}}>
+              <Image
+                source={require('../student/images/logout.png')}
+                style={styles.logout}
+              />
+            </TouchableOpacity>
             <Text style={styles.logo}>הרשמה</Text>
             <View style={styles.inputView}>
               <TextInput
@@ -129,7 +142,7 @@ export default class SignUp extends React.Component {
                 placeholder="סיסמא"
                 placeholderTextColor="#003f5c"
                 onChangeText={text => {
-                  RnHash.hashString(text, CONSTANTS.HashAlgorithms.md5)
+                  JSHash(text, CONSTANTS.HashAlgorithms.keccak)
                     .then(hash => {
                       this.setState({password: hash});
                     })
@@ -139,12 +152,6 @@ export default class SignUp extends React.Component {
             </View>
             <TouchableOpacity style={styles.loginBtn} onPress={this.SignUp}>
               <Text style={styles.loginText}>הרשמה</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                this.setState({signed: 0});
-              }}>
-              <Text style={styles.loginText}>go back</Text>
             </TouchableOpacity>
             {this.state.mistake === 1 ? (
               <Text style={{color: 'white'}}>* תעודת זהות קיימת במערכת</Text>
@@ -163,9 +170,10 @@ export default class SignUp extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#003f5c',
     alignItems: 'center',
     justifyContent: 'center',
+    width: screenWidth,
+    height: screenHeight,
   },
   logo: {
     fontWeight: 'bold',
@@ -173,9 +181,14 @@ const styles = StyleSheet.create({
     color: 'white',
     marginBottom: 40,
   },
+  logout: {
+    width: 30,
+    height: 30,
+    alignSelf: 'center',
+  },
   inputView: {
     width: 300,
-    backgroundColor: '#465881',
+    backgroundColor: 'white',
     borderRadius: 25,
     height: 50,
     marginBottom: 20,
@@ -184,15 +197,11 @@ const styles = StyleSheet.create({
   },
   inputText: {
     height: 50,
-    color: 'white',
-  },
-  forgot: {
-    color: 'white',
-    fontSize: 11,
+    color: 'black',
   },
   loginBtn: {
     width: 200,
-    backgroundColor: '#fb5b5a',
+    backgroundColor: 'white',
     borderRadius: 25,
     height: 50,
     alignItems: 'center',
@@ -201,6 +210,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   loginText: {
-    color: 'white',
+    color: 'black',
   },
 });

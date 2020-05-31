@@ -7,10 +7,14 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  Image,
+  Dimensions,
 } from 'react-native';
+let screenWidth = Dimensions.get('window').width;
+let screenHeight = Dimensions.get('window').height;
 import Profile from '../instructors/profile';
 import SignUp from '../instructors/signup';
-import RnHash, {CONSTANTS} from 'react-native-hash';
+import {JSHash, CONSTANTS} from 'react-native-hash';
 import * as Animatable from 'react-native-animatable';
 import User from '../user';
 export default class Login extends React.Component {
@@ -39,8 +43,9 @@ export default class Login extends React.Component {
 
   onPress() {
     this.state.instructors.map(item => {
-      RnHash.hashString(this.state.password, CONSTANTS.HashAlgorithms.md5)
+      JSHash(this.state.password, CONSTANTS.HashAlgorithms.keccak)
         .then(hash => {
+          console.log(hash);
           this.setState({count: this.state.count + 1});
           if (item.id === parseInt(this.state.id)) {
             if (item.password === hash) {
@@ -68,50 +73,66 @@ export default class Login extends React.Component {
             </View>
           ) : this.state.signed === 0 ? (
             <User />
-          ) : (
+          ) : this.state.instructors != null ? (
             <View style={styles.container}>
-              <Text style={styles.logo}>SenSafe - מדריך</Text>
-              {this.state.instructor === null ? (
-                this.state.mistake ? (
-                  <Text style={{color: 'white'}}>
+              <Image
+                style={{width: screenWidth, height: 350, top: 12}}
+                source={require('../student/images/test.jpeg')}
+              />
+              <TouchableOpacity
+                onPress={() => this.setState({signed: 0})}
+                style={{bottom: 300, right: 150}}>
+                <Image
+                  source={require('../student/images/logout.png')}
+                  style={styles.logout}
+                />
+              </TouchableOpacity>
+              <Image
+                style={{
+                  width: 280,
+                  height: 110,
+                  bottom: 168,
+                }}
+                source={require('../student/images/logo.png')}
+              />
+
+              <View style={{bottom: 100}}>
+                {this.state.mistake ? (
+                  <Text style={{color: 'white', textAlign: 'center'}}>
                     חלק מפרטי ההזדהות שהוקלדו אינם נכונים
                   </Text>
-                ) : null
-              ) : null}
-              <View style={styles.inputView}>
-                <TextInput
-                  style={styles.inputText}
-                  placeholder="תעודת זהות..."
-                  placeholderTextColor="#003f5c"
-                  onChangeText={text => this.setState({id: text})}
-                />
+                ) : null}
+                <View style={styles.inputView}>
+                  <TextInput
+                    style={styles.inputText}
+                    placeholder="תעודת זהות..."
+                    placeholderTextColor="#003f5c"
+                    onChangeText={text => this.setState({id: text})}
+                  />
+                </View>
+                <View style={styles.inputView}>
+                  <TextInput
+                    secureTextEntry
+                    style={styles.inputText}
+                    placeholder="סיסמא..."
+                    placeholderTextColor="#003f5c"
+                    onChangeText={text => this.setState({password: text})}
+                  />
+                </View>
+                <TouchableOpacity
+                  style={styles.loginBtn}
+                  onPress={this.onPress}>
+                  <Text style={styles.loginText}>התחברות</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.setState({signed: 2});
+                  }}>
+                  <Text style={styles.loginText}>הרשמה</Text>
+                </TouchableOpacity>
               </View>
-              <View style={styles.inputView}>
-                <TextInput
-                  secureTextEntry
-                  style={styles.inputText}
-                  placeholder="סיסמא..."
-                  placeholderTextColor="#003f5c"
-                  onChangeText={text => this.setState({password: text})}
-                />
-              </View>
-              <TouchableOpacity style={styles.loginBtn} onPress={this.onPress}>
-                <Text style={styles.loginText}>LOGIN</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  this.setState({signed: 2});
-                }}>
-                <Text style={styles.loginText}>Signup</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  this.setState({signed: 0});
-                }}>
-                <Text style={styles.loginText}>go back</Text>
-              </TouchableOpacity>
             </View>
-          )}
+          ) : null}
         </View>
       </Animatable.View>
     );
@@ -121,45 +142,41 @@ export default class Login extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: '100%',
-    backgroundColor: '#003f5c',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#258c4e',
   },
-  logo: {
-    fontWeight: 'bold',
-    fontSize: 35,
-    color: 'white',
-    marginBottom: 40,
+  logout: {
+    width: 30,
+    height: 30,
+    alignSelf: 'center',
   },
   inputView: {
     width: 300,
-    backgroundColor: '#465881',
+    backgroundColor: 'white',
     borderRadius: 25,
     height: 50,
-    marginBottom: 20,
+    marginBottom: 30,
     justifyContent: 'center',
     padding: 20,
   },
   inputText: {
     height: 50,
-    color: 'white',
-  },
-  forgot: {
-    color: 'white',
-    fontSize: 11,
+    color: 'black',
   },
   loginBtn: {
     width: 200,
-    backgroundColor: '#fb5b5a',
+    backgroundColor: 'white',
     borderRadius: 25,
     height: 50,
+    alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 40,
     marginBottom: 10,
   },
   loginText: {
-    color: 'white',
+    alignSelf: 'center',
+    fontSize: 25,
+    color: 'black',
   },
 });

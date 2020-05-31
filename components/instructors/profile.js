@@ -7,12 +7,15 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import Students from '../instructors/students';
 import EditProfile from '../instructors/editProfile';
 import Login from '../instructors/login';
 import StudentData from './studentData';
 import * as Animatable from 'react-native-animatable';
+let screenWidth = Dimensions.get('window').width;
+let screenHeight = Dimensions.get('window').height;
 
 export default class Profile extends Component {
   constructor(props) {
@@ -29,7 +32,6 @@ export default class Profile extends Component {
     };
   }
   componentDidMount() {
-    console.log(this.props.data);
     fetch('https://sensafe-instructor.herokuapp.com/oneInstructor', {
       method: 'POST',
       headers: {
@@ -42,7 +44,6 @@ export default class Profile extends Component {
     })
       .then(response => response.json())
       .then(responseJson => {
-        // console.log(responseJson);
         this.setState({instructor: responseJson});
       })
       .catch(error => {
@@ -55,7 +56,7 @@ export default class Profile extends Component {
       <Animatable.View
         style={styles.container}
         useNativeDriver
-        duration={3000}
+        duration={2000}
         animation="fadeIn">
         <View style={styles.container}>
           {this.state.logout ? (
@@ -71,7 +72,7 @@ export default class Profile extends Component {
                   <View style={styles.header} />
                   <TouchableOpacity
                     onPress={() => this.setState({logout: true})}
-                    style={{bottom: 280, right: 150}}>
+                    style={{bottom: 230, right: 150}}>
                     <Image
                       source={require('../student/images/logout.png')}
                       style={styles.logout}
@@ -89,7 +90,7 @@ export default class Profile extends Component {
                     onPress={() => {
                       this.setState({edit: true});
                     }}>
-                    <Text style={{justifyContent: 'center', fontSize: 18}}>
+                    <Text style={{justifyContent: 'center', fontSize: 25}}>
                       {'  '}
                       עריכת פרופיל
                     </Text>
@@ -106,6 +107,7 @@ export default class Profile extends Component {
                       {this.state.instructor[0].className.map(className => {
                         return (
                           <TouchableOpacity
+                            key={className}
                             onPress={() => {
                               this.setState({grade: className});
                             }}>
@@ -116,7 +118,7 @@ export default class Profile extends Component {
                       <TouchableOpacity
                         onPress={() => this.setState({studentData: true})}
                         style={styles.buttonContainer}>
-                        <Text>נתוני תלמידים</Text>
+                        <Text style={{fontSize: 25}}>נתוני תלמידים</Text>
                       </TouchableOpacity>
                     </View>
                   </ScrollView>
@@ -124,7 +126,7 @@ export default class Profile extends Component {
               </View>
             ) : null
           ) : (
-            <Students data={this.state.grade} />
+            <Students grade={this.state.grade} data={this.props.data} />
           )}
         </View>
       </Animatable.View>
@@ -135,14 +137,17 @@ export default class Profile extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    height: 1000,
-    width: 400,
+    height: screenHeight,
+    width: screenWidth,
+    backgroundColor: '#b5e2ff',
     alignItems: 'center',
   },
   header: {
-    backgroundColor: '#00BFFF',
-    height: 300,
-    width: 400,
+    backgroundColor: '#769ECB',
+    height: 250,
+    width: screenWidth,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
   },
   lottie: {width: 100, height: 100},
   avatar: {
@@ -172,23 +177,25 @@ const styles = StyleSheet.create({
   },
   name: {
     textAlign: 'center',
-    bottom: 150,
+    bottom: 110,
     fontSize: 28,
     color: 'white',
     fontWeight: '600',
   },
   info: {
-    fontSize: 22,
-    color: '#00BFFF',
+    fontSize: 30,
+    color: '#769ECB',
     marginTop: 10,
   },
   classes: {
-    fontSize: 20,
-    color: 'white',
+    fontSize: 25,
+    color: 'black',
     marginTop: 10,
     textAlign: 'center',
   },
   buttonContainer: {
+    shadowColor: 'black',
+    elevation: 10, // Android
     marginTop: 10,
     height: 45,
     flexDirection: 'row',
@@ -200,9 +207,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   editButton: {
+    shadowColor: 'black',
+    elevation: 10, // Android
     flexDirection: 'row',
-    left: 100,
-    bottom: 130,
+    bottom: 90,
+    alignSelf: 'center',
     height: 45,
     justifyContent: 'center',
     alignItems: 'center',

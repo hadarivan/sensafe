@@ -5,13 +5,18 @@ import {
   Text,
   View,
   Image,
+  Platform,
   TouchableOpacity,
   ScrollView,
   TextInput,
+  Dimensions,
+  KeyboardAvoidingView,
 } from 'react-native';
 import Profile from '../instructors/profile';
 import * as Animatable from 'react-native-animatable';
 import {Root, Popup, Toast} from 'popup-ui';
+let screenWidth = Dimensions.get('window').width;
+let screenHeight = Dimensions.get('window').height;
 import ImagePicker from 'react-native-image-picker';
 
 export default class EditProfile extends Component {
@@ -131,13 +136,13 @@ export default class EditProfile extends Component {
   render() {
     return (
       <Root>
-        <Animatable.View useNativeDriver duration={3000} animation="bounceInUp">
+        <Animatable.View useNativeDriver duration={3000} animation="fadeIn">
           <View style={styles.container}>
             {this.state.edit ? (
               <Profile data={this.state} />
             ) : (
               <ScrollView>
-                <View>
+                <View style={{paddingBottom: 50}}>
                   <Text style={styles.info}>עריכת פרופיל</Text>
                   <Image
                     source={{uri: this.state.photo}}
@@ -159,69 +164,73 @@ export default class EditProfile extends Component {
                     {this.props.data.name}
                   </TextInput>
                   <Text style={styles.info}>כיתות לימוד</Text>
-                  {this.props.data.className.map(className => {
-                    return (
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignContent: 'center',
-                          justifyContent: 'center',
-                        }}>
-                        <Text style={styles.classes}>{className}</Text>
-                        <TouchableOpacity
+                  <KeyboardAvoidingView behavior={'height'}>
+                    {this.props.data.className.map(className => {
+                      return (
+                        <View
+                          key={className}
                           style={{
-                            alignSelf: 'center',
-                            marginLeft: 5,
-                            marginTop: 10,
-                          }}
-                          onPress={() => {
-                            Popup.show({
-                              type: 'Danger',
-                              title: 'מחיקת כיתת ' + className,
-                              textBody:
-                                'כיתה זו נמחקה.\n' +
-                                'בלחיצה על שמור הנתונים יעודכנו.',
-                              buttontext: 'Ok',
-                              callback: () => {
-                                Popup.hide();
-                                this.delete(className);
-                              },
-                            });
+                            flexDirection: 'row',
+                            alignContent: 'center',
+                            justifyContent: 'center',
                           }}>
-                          <Image
-                            source={require('../student/images/delete.png')}
-                            style={{width: 20, height: 20}}
-                            resizeMode="contain"
-                          />
+                          <Text style={styles.classes}>{className}</Text>
+                          <TouchableOpacity
+                            style={{
+                              alignSelf: 'center',
+                              marginLeft: 5,
+                              marginTop: 10,
+                            }}
+                            onPress={() => {
+                              Popup.show({
+                                type: 'Danger',
+                                title: 'מחיקת כיתת ' + className,
+                                textBody:
+                                  'כיתה זו נמחקה.\n' +
+                                  'בלחיצה על שמור הנתונים יעודכנו.',
+                                buttontext: 'Ok',
+                                callback: () => {
+                                  Popup.hide();
+                                  this.delete(className);
+                                },
+                              });
+                            }}>
+                            <Image
+                              source={require('../student/images/delete.png')}
+                              style={{width: 20, height: 20}}
+                              resizeMode="contain"
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      );
+                    })}
+                    {this.state.add ? (
+                      <View>
+                        <TextInput
+                          placeholder="הכנס שם כיתה"
+                          placeholderTextColor="black"
+                          onChangeText={text => {
+                            this.setState({className: text});
+                          }}
+                          style={styles.input}
+                        />
+                      </View>
+                    ) : (
+                      <View>
+                        <TouchableOpacity
+                          style={styles.buttonContainer}
+                          onPress={() => {
+                            this.setState({add: true});
+                          }}>
+                          <Text
+                            style={{justifyContent: 'center', fontSize: 18}}>
+                            {'  '}
+                            הוספת כיתה
+                          </Text>
                         </TouchableOpacity>
                       </View>
-                    );
-                  })}
-                  {this.state.add ? (
-                    <View>
-                      <TextInput
-                        placeholder="הכנס שם כיתה"
-                        placeholderTextColor="white"
-                        onChangeText={text => {
-                          this.setState({className: text});
-                        }}
-                        style={styles.input}
-                      />
-                    </View>
-                  ) : (
-                    <View>
-                      <TouchableOpacity
-                        style={styles.buttonContainer}
-                        onPress={() => {
-                          this.setState({add: true});
-                        }}>
-                        <Text style={{justifyContent: 'center', fontSize: 18}}>
-                          {'  '}
-                          הוספת כיתה
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
+                    )}
+                  </KeyboardAvoidingView>
 
                   <TouchableOpacity
                     style={styles.buttonContainer}
@@ -260,36 +269,38 @@ export default class EditProfile extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    width: 400,
+    flex: 1,
+    width: screenWidth,
+    height: screenHeight,
+    backgroundColor: '#EAEBFF',
   },
   input: {
     borderWidth: 0.2,
     height: 50,
     alignSelf: 'center',
     borderRadius: 50,
-    borderColor: 'rgba(242, 242, 242, 0.5)',
+    borderColor: 'rgba(0, 0, 0, 0.5)',
     textAlign: 'center',
     fontSize: 20,
     width: '60%',
-    color: 'white',
+    color: 'black',
   },
   name: {
     alignSelf: 'center',
     textAlign: 'center',
     fontSize: 15,
     width: '100%',
-    color: 'white',
+    color: 'black',
   },
   info: {
     alignSelf: 'center',
-    fontSize: 22,
-    color: '#00BFFF',
-    margin: 20,
+    fontSize: 30,
+    color: '#769ECB',
+    margin: 15,
   },
   classes: {
     fontSize: 20,
-    color: 'white',
+    color: 'black',
     marginTop: 10,
     alignSelf: 'center',
     textAlign: 'center',
@@ -300,7 +311,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
     width: 200,
     borderRadius: 30,
     backgroundColor: 'white',

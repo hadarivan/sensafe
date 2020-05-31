@@ -8,11 +8,14 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Dimensions,
 } from 'react-native';
 import Pie from 'react-native-pie';
 import AnimatedLoader from 'react-native-animated-loader';
 import * as Animatable from 'react-native-animatable';
 import Profile from '../instructors/profile';
+let screenWidth = Dimensions.get('window').width;
+let screenHeight = Dimensions.get('window').height;
 export default class StudentData extends React.Component {
   constructor(props) {
     super(props);
@@ -82,10 +85,10 @@ export default class StudentData extends React.Component {
         ),
       }));
     }
-    if (student.failCount === 3) {
+    if (student.failCount === 2) {
       this.setState(prevState => ({
         fail: prevState.fail.map(obj =>
-          obj.name === 'נכשלים בפעם השניה'
+          obj.name === 'נכשלים בפעם השנייה'
             ? Object.assign(obj, {amount: obj.amount + 1})
             : obj,
         ),
@@ -100,6 +103,7 @@ export default class StudentData extends React.Component {
         ),
       }));
     }
+    console.log(this.state.fail);
   }
   avgScore(student) {
     if (student.quizGrade === null) {
@@ -109,8 +113,8 @@ export default class StudentData extends React.Component {
         avgScore: parseInt(student.quizGrade) + this.state.avgScore,
       });
     }
-    console.log(this.state.avgScore);
-    console.log(this.state.count);
+    // console.log(this.state.avgScore);
+    // console.log(this.state.count);
   }
   avgLevel(student) {
     this.setState({
@@ -132,7 +136,6 @@ export default class StudentData extends React.Component {
     }
   }
   render() {
-    console.log(this.state.fail);
     return (
       <Animatable.View useNativeDriver duration={3000} animation="fadeIn">
         <View style={styles.container}>
@@ -144,9 +147,9 @@ export default class StudentData extends React.Component {
                 <Text style={styles.info}>נתוני תלמידים כללים:</Text>
                 <TouchableOpacity
                   onPress={() => this.setState({logout: true})}
-                  style={{bottom: 50, right: 150}}>
+                  style={{bottom: 55, right: 150}}>
                   <Image
-                    source={require('../student/images/logout.png')}
+                    source={require('../student/images/go-back.png')}
                     style={styles.logout}
                   />
                 </TouchableOpacity>
@@ -189,9 +192,11 @@ export default class StudentData extends React.Component {
                       />
                       <View style={styles.gauge}>
                         <Text style={styles.gaugeText}>
-                          {(this.state.fail[0].amount /
-                            this.state.students.length) *
-                            100}
+                          {parseInt(
+                            (this.state.fail[0].amount /
+                              this.state.students.length) *
+                              100,
+                          )}
                           %
                         </Text>
                       </View>
@@ -216,9 +221,11 @@ export default class StudentData extends React.Component {
                       />
                       <View style={styles.gauge}>
                         <Text style={styles.gaugeText}>
-                          {(this.state.fail[1].amount /
-                            this.state.students.length) *
-                            100}
+                          {parseInt(
+                            (this.state.fail[1].amount /
+                              this.state.students.length) *
+                              100,
+                          )}
                           %
                         </Text>
                       </View>
@@ -243,9 +250,11 @@ export default class StudentData extends React.Component {
                       />
                       <View style={styles.gauge}>
                         <Text style={styles.gaugeText}>
-                          {(this.state.fail[2].amount /
-                            this.state.students.length) *
-                            100}
+                          {parseInt(
+                            (this.state.fail[2].amount /
+                              this.state.students.length) *
+                              100,
+                          )}
                           %
                         </Text>
                       </View>
@@ -270,9 +279,11 @@ export default class StudentData extends React.Component {
                       />
                       <View style={styles.gauge}>
                         <Text style={styles.gaugeText}>
-                          {(this.state.fail[3].amount /
-                            this.state.students.length) *
-                            100}
+                          {parseInt(
+                            (this.state.fail[3].amount /
+                              this.state.students.length) *
+                              100,
+                          )}
                           %
                         </Text>
                       </View>
@@ -300,12 +311,14 @@ export default class StudentData extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    width: 400,
+    flex: 1,
+    width: screenWidth,
+    height: screenHeight,
+    backgroundColor: '#D4CDFF',
   },
   info: {
-    fontSize: 22,
-    color: '#00BFFF',
+    fontSize: 30,
+    color: 'black',
     margin: 20,
     alignSelf: 'center',
   },
@@ -318,7 +331,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'black',
     margin: 10,
-    textAlign: 'right',
+    textAlign: 'left',
   },
   pieData: {
     fontSize: 18,
@@ -330,11 +343,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
-    margin: 20,
   },
   generalData: {
     alignSelf: 'center',
-    width: '87%',
+    width: screenWidth - 20,
     height: '50%',
     backgroundColor: 'white',
     color: 'black',
@@ -346,15 +358,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'center',
     width: 170,
-    height: 200,
+    height: 250,
     backgroundColor: 'white',
     color: 'black',
-    borderRadius: 25,
-    margin: 5,
+    marginLeft: 12,
   },
   gauge: {
     position: 'absolute',
-    top: 55,
+    top: 80,
     width: 100,
     height: 160,
     alignItems: 'center',
