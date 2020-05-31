@@ -8,16 +8,16 @@ import {
   NativeModules,
   Platform,
   PermissionsAndroid,
-  ScrollView,
   AppState,
   FlatList,
+  Image,
   Dimensions,
-  Button,
   SafeAreaView,
+  TouchableOpacity,
 } from 'react-native';
 import BleManager from 'react-native-ble-manager';
-import Tts from 'react-native-tts';
-
+import Sound from 'react-native-sound';
+import Menu from '../student/menu';
 const window = Dimensions.get('window');
 
 const BleManagerModule = NativeModules.BleManager;
@@ -32,6 +32,8 @@ export default class Simulation extends Component {
       scanning: false,
       peripherals: new Map(),
       appState: '',
+      student: null,
+      logout: false,
     };
 
     this.handleDiscoverPeripheral = this.handleDiscoverPeripheral.bind(this);
@@ -46,6 +48,14 @@ export default class Simulation extends Component {
     this.handleAppStateChange = this.handleAppStateChange.bind(this);
     this.speak = this.speak.bind(this);
   }
+  stopSign = new Sound('stop.mp3');
+  giveWay = new Sound('giveway.mp3');
+  playSound = () => {
+    this.stopSign.play();
+  };
+  playSound1 = () => {
+    this.giveWay.play();
+  };
 
   componentDidMount() {
     AppState.addEventListener('change', this.handleAppStateChange);
@@ -138,10 +148,36 @@ export default class Simulation extends Component {
   }
 
   startScan() {
+    console.log(this.props.data.simCount)
+    fetch('https://sensafe-student.herokuapp.com/editAchievement', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: this.props.data.id,
+        _id: 4,
+        isDone: true,
+      }),
+    });
+    fetch('https://sensafe-student.herokuapp.com/editSimCount', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: this.props.data.id,
+        simCount: this.props.data.simCount + 1,
+        isDone: true,
+      }),
+    });
     if (!this.state.scanning) {
-      //this.setState({peripherals: new Map()});
-      BleManager.scan([], 600, true).then(results => {
-        console.log('Scanning...');
+      console.log('scan');
+      BleManager.scan([], 60, true).then(() => {
+        // Success code
+        console.log('Scan started');
         this.setState({scanning: true});
       });
     }
@@ -152,6 +188,7 @@ export default class Simulation extends Component {
       BleManager.stopScan().then(results => {
         console.log('Stop Scanning...');
         this.setState({scanning: false});
+        this.setState({logout: true});
       });
     }
   }
@@ -195,78 +232,43 @@ export default class Simulation extends Component {
       }
     }
   }
-
-  renderItem(item) {
-    return (
-      <View style={[styles.row]}>
-        <Text
-          // eslint-disable-next-line react-native/no-inline-styles
-          style={{
-            fontSize: 12,
-            textAlign: 'center',
-            color: '#333333',
-            padding: 10,
-          }}>
-          {item.name}
-        </Text>
-        <Text
-          // eslint-disable-next-line react-native/no-inline-styles
-          style={{
-            fontSize: 10,
-            textAlign: 'center',
-            color: '#333333',
-            padding: 2,
-          }}>
-          RSSI: {item.rssi}
-        </Text>
-        <Text
-          style={{
-            fontSize: 8,
-            textAlign: 'center',
-            color: '#333333',
-            padding: 2,
-            paddingBottom: 20,
-          }}>
-          {item.id}
-        </Text>
-      </View>
-    );
-  }
   speak(list) {
+    console.log(list);
     var flag = false;
     var name;
-    if (list.length > 3) {
-      for (var i = 0; i < 4; i++) {
+    if (list.length > 0) {
+      for (var i = 0; i < list.length; i++) {
         global.avg[i] = (global.avg[i] + list[i].rssi) / 2;
       }
-    }
-    for (var index = 0; index < list.length; index++) {
-      console.log('name' + list[index].name + 'avg' + global.avg[index]);
+      for (var index = 0; index < list.length; index++) {
+        console.log('name' + list[index].name + 'avg' + global.avg[index]);
 
-      if (
-        (list[index].name.includes('1') || list[index].name.includes('2')) &&
-        global.avg[index] > -65
-      ) {
-        flag = true;
-        name = list[index].name;
-      }
-      if (
-        flag &&
-        ((list[index].name.includes('3') || list[index].name.includes('4')) &&
-          global.avg[index] < -80)
-      ) {
         if (
-          list[index].name.includes('stopSign') &&
-          name.includes('stopSign')
+          (list[index].name.includes('1') || list[index].name.includes('2')) &&
+          global.avg[index] > -70
         ) {
-          Tts.stop();
-          Tts.speak('Stop Sign, Please stop');
-          flag=false;
+          flag = true;
+          name = list[index].name;
         }
-        if (list[index].name.includes('giveWay') && name.includes('giveWay')) {
-          Tts.stop();
-          Tts.speak('Please slow down');
-          flag=false;
+        if (
+          flag &&
+          ((list[index].name.includes('3') || list[index].name.includes('4')) &&
+            global.avg[index] < -80)
+        ) {
+          if (
+            list[index].name.includes('stopSign') &&
+            name.includes('stopSign')
+          ) {
+            this.playSound();
+            flag = false;
+          }
+          if (
+            list[index].name.includes('giveWay') &&
+            name.includes('giveWay')
+          ) {
+            this.playSound1();
+            flag = false;
+          }
         }
       }
     }
@@ -275,71 +277,34 @@ export default class Simulation extends Component {
   render() {
     const list = Array.from(this.state.peripherals.values());
     list.sort((a, b) => (a.name > b.name ? 1 : -1));
-    const btnScanTitle =
-      'Start Simulation (' + (this.state.scanning ? 'on' : 'off') + ')';
-    const btnStopScanTitle = 'Stop Simulation';
-    if (list.length > 3) {
+    if (list.length != null) {
       return (
         <SafeAreaView style={styles.container}>
-          <View style={styles.container}>
-            <View style={{margin: 10}}>
-              <Button title={btnScanTitle} onPress={() => this.startScan()} />
+          {this.state.logout ? (
+            <Menu data={this.props.data} />
+          ) : (
+            <View style={styles.container}>
+              <TouchableOpacity
+                onPress={() => this.setState({logout: true})}
+                style={{top: 20, right: 140}}>
+                <Image
+                  source={require('../student/images/go-back1.png')}
+                  style={styles.logout}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.startScan}
+                onPress={() => this.startScan()}>
+                <Text style={styles.loginText}>התחל סימולציה</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.stopScan}
+                onPress={() => this.stopScan()}>
+                <Text style={styles.loginText}>הפסק סימולציה</Text>
+              </TouchableOpacity>
+              {this.speak(list)}
             </View>
-            <View style={{margin: 10}}>
-              <Button
-                title={btnStopScanTitle}
-                onPress={() => this.stopScan()}
-              />
-            </View>
-            {list.length === 0 && (
-              <View>
-                <Text>No Devices</Text>
-              </View>
-            )}
-            <FlatList
-              data={list}
-              renderItem={({item}) =>
-                item.name ? this.renderItem(item) : null
-              }
-              keyExtractor={item => item.id}
-            />
-            {Tts.stop()} {Tts.speak('Stop sign - please stop')}
-            {this.speak(list)}
-            <Text>
-              AVG is {list[0].name + ' ' + global.avg[0] + '\n'}
-              AVG is {list[1].name + ' ' + global.avg[1] + '\n'}
-              AVG is {list[2].name + ' ' + global.avg[2] + '\n'}
-              AVG is {list[3].name + ' ' + global.avg[3] + '\n'}
-            </Text>
-          </View>
-        </SafeAreaView>
-      );
-    } else {
-      return (
-        <SafeAreaView style={styles.container}>
-          <View style={styles.container}>
-            <View style={{margin: 10}}>
-              <Button title={btnScanTitle} onPress={() => this.startScan()} />
-            </View>
-            <View style={{margin: 10}}>
-              <Button
-                title={btnStopScanTitle}
-                onPress={() => this.stopScan()}
-              />
-            </View>
-            {list.length == 0 && (
-              <View style={{flex: 1, margin: 20}}>
-                <Text style={{textAlign: 'center'}}>No peripherals</Text>
-              </View>
-            )}
-            <FlatList
-              data={list}
-              renderItem={({item}) =>
-                item.name ? this.renderItem(item) : null
-              }
-              keyExtractor={item => item.id}
-            />
-          </View>
+          )}
         </SafeAreaView>
       );
     }
@@ -349,9 +314,14 @@ export default class Simulation extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: 'black',
     width: window.width,
     height: window.height,
+  },
+  logout: {
+    width: 30,
+    height: 30,
+    alignSelf: 'center',
   },
   scroll: {
     flex: 1,
@@ -360,5 +330,32 @@ const styles = StyleSheet.create({
   },
   row: {
     margin: 10,
+  },
+  startScan: {
+    width: 200,
+    backgroundColor: 'green',
+    borderRadius: 200,
+    height: 100,
+    top: 150,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 70,
+  },
+  stopScan: {
+    top: 200,
+    width: 200,
+    backgroundColor: 'red',
+    borderRadius: 200,
+    height: 100,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  loginText: {
+    alignSelf: 'center',
+    fontSize: 25,
+    color: 'white',
   },
 });
