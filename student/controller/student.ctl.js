@@ -4,7 +4,7 @@ const Student = require('../models/student');
 module.exports = {
     async getAllStudents(req, res) {    //admin get all studentd
         const result = await Student.find({})
-        if(result.length===0) res.send("No Student was found")
+        if(result.length===0) res.json("No Student was found")
         else if(result.length>0) res.json(result);
         else res.status(404).send('not found');
     },
@@ -12,7 +12,7 @@ module.exports = {
         const {id=null} = req.body;
         const result = await Student.findOneAndDelete({id})
         console.log(result);
-        if(result==null) res.send("No students were found") // checks if id exist if exist then delete
+        if(result==null) res.json("No students were found") // checks if id exist if exist then delete
         else if(result) res.json(result);
         else res.status(404).send('not found');
     },
@@ -24,40 +24,41 @@ module.exports = {
             score= 0,
             level= "baby",
             achievements= [
-                {_id:0, achievement:'ציית לחוק פעם ראשונה',points:150, isDone:false},
-                {_id:1, achievement:'עלה לרמה 2 בבוחן',points:100, isDone:false},
+                {_id:0, achievement:'הצטרף לאפליקציה',points:100, isDone:true},
+                {_id:1, achievement:'עלה לרמה 2 בבוחן',points:200, isDone:false},
                 {_id:2, achievement:'עלה לרמה 3 בבוחן',points:200, isDone:false},
-                {_id:3, achievement:'עלה לשלב אביר',points:100, isDone:false},
-                {_id:4, achievement:'עלה לשלב מלך',points:200, isDone:false},
+                {_id:3, achievement:'קיבל 100 בבוחן',points:250, isDone:false},
+                {_id:4, achievement:'עשה סימולציה בפעם הראשונה',points:250, isDone:false},
             ],
+            profileColor= 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')',
             quizLevel= 1,
             quizGrade= null,
             quizMistakes= [],
-            failCount= null,
+            failCount= 0,
             simMistakes= [],
+            simCount= 0,
         } = req.body;
         const result= await Student.find({id}); // checks if id already exist if not create a new student
-        if(result.length===0 && id.length === 9){
-            const student = new Student({id, name, grade, score, level, achievements, quizLevel, quizGrade, quizMistakes, failCount, simMistakes})
+        if(result.length===0){
+            const student = new Student({id, name, grade, score, level, achievements, quizLevel, quizGrade, quizMistakes, failCount, profileColor, simMistakes, simCount})
             console.log(student)
             student.save(function (err) {
                 if (err) { 
                     handleError(res, err);
                 }
                 else {
-                    res.send(student);
+                    res.json(student);
                 }
             });
         }
-        else if(id.length!==9) res.send("Id bad")
-        else if(result.length>0) res.send("Id already exists");
+        else if(result.length>0) res.json("Id already exists");
         else res.status(404).send('not found')
     },
     async editStudentById(req, res){  //edit student's name by id
         const {id=null, name=null} = req.body;
         const result =await Student.findOneAndUpdate({id},{$set:{name}},{});
         console.log(result);
-        if(result==null) res.send("No student was found")  // checks if id exist if exist then edit
+        if(result==null) res.json("No student was found")  // checks if id exist if exist then edit
         else if(result) res.json(result);
         else res.status(404).send('not found');
     },
@@ -65,7 +66,7 @@ module.exports = {
         const {name=null, id=null} = req.body;
         const result =await Student.findOneAndUpdate({name},{$set:{id}},{});
         console.log(result);
-        if(result==null) res.send("No student was found")  // checks if name exist if exist then edit
+        if(result==null) res.json("No student was found")  // checks if name exist if exist then edit
         else if(result) res.json(result);
         else res.status(404).send('not found');
     },
@@ -73,7 +74,7 @@ module.exports = {
         const {id=null, grade=null} = req.body;
         const result =await Student.findOneAndUpdate({id},{$set:{grade}},{});
         console.log(result);
-        if(result==null) res.send("No student was found")  // checks if name exist if exist then edit
+        if(result==null) res.json("No student was found")  // checks if name exist if exist then edit
         else if(result) res.json(result);
         else res.status(404).send('not found');
     },
@@ -81,7 +82,7 @@ module.exports = {
         const {id=null, score=null} = req.body;
         const result =await Student.findOneAndUpdate({id},{$set:{score}},{});
         console.log(result);
-        if(result==null) res.send("No student was found")  // checks if name exist if exist then edit
+        if(result==null) res.json("No student was found")  // checks if name exist if exist then edit
         else if(result) res.json(result);
         else res.status(404).send('not found');
     },
@@ -89,7 +90,7 @@ module.exports = {
         const {id=null, level=null} = req.body;
         const result =await Student.findOneAndUpdate({id},{$set:{level}},{});
         console.log(result);
-        if(result==null) res.send("No student was found")  // checks if name exist if exist then edit
+        if(result==null) res.json("No student was found")  // checks if name exist if exist then edit
         else if(result) res.json(result);
         else res.status(404).send('not found');
     },
@@ -97,7 +98,7 @@ module.exports = {
         const {id=null,_id=null, isDone=null} = req.body;
         const result =await Student.findOneAndUpdate({id, "achievements._id":_id},{$set: {"achievements.$.isDone": isDone}},{});
         console.log(result);
-        if(result==null) res.send("No student was found")  // checks if name exist if exist then edit
+        if(result==null) res.json("No student was found")  // checks if name exist if exist then edit
         else if(result) res.json(result);
         else res.status(404).send('not found');
     },
@@ -105,7 +106,7 @@ module.exports = {
         const {id=null, quizLevel=null} = req.body;
         const result =await Student.findOneAndUpdate({id},{$set:{quizLevel}},{});
         console.log(result);
-        if(result==null) res.send("No student was found")  // checks if name exist if exist then edit
+        if(result==null) res.json("No student was found")  // checks if name exist if exist then edit
         else if(result) res.json(result);
         else res.status(404).send('not found');
     },
@@ -113,7 +114,7 @@ module.exports = {
         const {id=null, quizGrade=null} = req.body;
         const result =await Student.findOneAndUpdate({id},{$set:{quizGrade}},{});
         console.log(result);
-        if(result==null) res.send("No student was found")  // checks if name exist if exist then edit
+        if(result==null) res.json("No student was found")  // checks if name exist if exist then edit
         else if(result) res.json(result);
         else res.status(404).send('not found');
     },
@@ -121,7 +122,7 @@ module.exports = {
         const {id=null, quizMistake=null} = req.body;
         const result =await Student.findOneAndUpdate({id},{$push: {quizMistakes: quizMistake}},{});
         console.log(result);
-        if(result==null) res.send("No student was found")  // checks if name exist if exist then edit
+        if(result==null) res.json("No student was found")  // checks if name exist if exist then edit
         else if(result) res.json(result);
         else res.status(404).send('not found');
     },
@@ -129,7 +130,15 @@ module.exports = {
         const {id=null, failCount=null} = req.body;
         const result =await Student.findOneAndUpdate({id},{$set:{failCount}},{});
         console.log(result);
-        if(result==null) res.send("No student was found")  // checks if name exist if exist then edit
+        if(result==null) res.json("No student was found")  // checks if name exist if exist then edit
+        else if(result) res.json(result);
+        else res.status(404).send('not found');
+    },
+    async editStudentSimCount(req, res){  //edit student's simCount by id
+        const {id=null, simCount=null} = req.body;
+        const result =await Student.findOneAndUpdate({id},{$set:{simCount}},{});
+        console.log(result);
+        if(result==null) res.json("No student was found")  // checks if name exist if exist then edit
         else if(result) res.json(result);
         else res.status(404).send('not found');
     },
@@ -137,7 +146,7 @@ module.exports = {
         const {id=null, simMistake=null} = req.body;
         const result =await Student.findOneAndUpdate({id},{$push: {simMistakes: simMistake}},{});
         console.log(result);
-        if(result==null) res.send("No student was found")  // checks if name exist if exist then edit
+        if(result==null) res.json("No student was found")  // checks if name exist if exist then edit
         else if(result) res.json(result);
         else res.status(404).send('not found');
     },
@@ -145,19 +154,19 @@ module.exports = {
     async getStudentById(req, res){  //show student by id
         const {id=null} = req.body; 
         const result =await Student.find({id})
-        if(result.length===0) res.send("No student was found")
+        if(result.length===0) res.json("No student was found")
         else if(result.length>0) res.json(result);
         else res.status(404).send('not found');
     },
     async getStudentByName(req, res){  //show student by name
         const {name=null} = req.body; 
         const result =await Student.find({name})
-        if(result.length===0) res.send("No student was found")
+        if(result.length===0) res.json("No student was found")
         else if(result.length>0) res.json(result);
         else res.status(404).send('not found');
     },
 
     async routeNotFound(req, res){  
-        return res.send("Route not found, please try a different one");
+        return res.json("Route not found, please try a different one");
     }
 }
