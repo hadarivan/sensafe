@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import AnimatedLoader from 'react-native-animated-loader';
-import { FlatList, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { FlatList, StyleSheet, View, Image, Text, TouchableOpacity } from 'react-native';
 
-
-export default class App extends Component {
+export default class AllTrafficLaws extends Component {
 
   constructor() {
     super();
@@ -14,7 +13,8 @@ export default class App extends Component {
       HeaderText: 'חוקי תנועה',
       subjectsList: null,
       allTrafficLawsFiltered: false,
-      back: false
+      back: false,
+      logout:false
     }
   }
 
@@ -23,9 +23,8 @@ export default class App extends Component {
       .then((response) => response.json())
       .then((responseJson) => {
 
-        // this extract unique subjects
+        //extracting unique subjects
         let subjectsArray = [...responseJson]
-        // console.log(subjectsArray)
         let uniqueSubjectsArray = subjectsArray.filter(function (elem, index, self) {
           return index === self.findIndex(elm => elm.subject == elem.subject);
         })
@@ -47,6 +46,9 @@ export default class App extends Component {
       this.setState({
         allTrafficLawsFiltered: [...allTrafficLawsFiltered]
       })
+      this.setState({
+        HeaderText: subject
+      })
     }
   }
 
@@ -65,10 +67,20 @@ export default class App extends Component {
                 source={require('../student/images/18535-best-bike-guide-bicycle.json')}
               />
             </View>)
+            :this.state.logout?
+            <AllTrafficLaws data = {this.props.data}/>
             :
             (<View style={{ flex: 1 }}>
               <View style={styles.Header}>
                 <Text style={styles.HeaderText}>{this.state.HeaderText}</Text>
+                <TouchableOpacity
+                  onPress={() => this.setState({logout: true})}
+                  style={{bottom: 24,left: 150}}>
+                  <Image
+                  source={require('./images/back.png')}
+                  style={styles.back}
+                  />
+                </TouchableOpacity>
               </View>
               <View style={styles.lawsHolder}>
                 {this.state.allTrafficLawsFiltered ?
@@ -80,7 +92,7 @@ export default class App extends Component {
                         <Text style={styles.lawText}>{item.law} </Text>
                       </View>
                 } />
-                  :
+                :
                   <FlatList keyExtractor={(item) => item.subject}
                     numColumns={(this.state.gridView) ? 2 : 1}
                     data={this.state.subjectsList}
@@ -93,7 +105,7 @@ export default class App extends Component {
                       </TouchableOpacity>
                     } 
                   />
-                }
+                  }
               </View>
             </View>)
         }
@@ -128,12 +140,12 @@ const styles = StyleSheet.create(
       shadowColor: "#000",
       shadowOffset: {
         width: 0,
-        height: 1,
+        height: 0.5,
       },
       shadowOpacity: 0.10,
-      shadowRadius: 2.5,
+      shadowRadius: 1.5,
 
-      elevation: 2,
+      elevation: 1.5,
     },
     SubjectTextHolder: {
       position: 'relative',
@@ -151,6 +163,7 @@ const styles = StyleSheet.create(
       shadowColor: "#000",
       shadowOffset: {
         width: 0,
+        
         height: 1,
       },
       shadowOpacity: 0.10,
@@ -164,17 +177,18 @@ const styles = StyleSheet.create(
     },
     SubjectText: {
       color: 'white',
-      fontWeight:"bold",
-      textAlign:"center",
-      marginTop:62
+      height:65,
+      alignSelf:'center',
+      marginTop:65
     },
     lottie: {
       width: 100,
       height: 100
     },
     Header: {
-      padding: 15,
-      backgroundColor: '#93d1bc'
+      padding: 17,
+      backgroundColor: '#93d1bc',
+      height:55
     },
     HeaderText: {
       color: 'white',
@@ -184,7 +198,6 @@ const styles = StyleSheet.create(
     back: {
       width: 30,
       height: 30,
-      position: 'absolute',
-      bottom: 100,
+      alignSelf:'center'
     }
   });
