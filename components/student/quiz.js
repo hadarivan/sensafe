@@ -22,6 +22,7 @@ export default class Question extends React.Component {
 
     this.state = {
       level: [],
+      wrongAnswers: [],
       isLoaded: false,
       back: false,
       backgroundColor: 'white',
@@ -34,6 +35,7 @@ export default class Question extends React.Component {
     this.changeLoad = this.changeLoad.bind(this);
     this.calculateQuizGrade = this.calculateQuizGrade.bind(this);
     this.changeStudentQuizGrade = this.changeStudentQuizGrade.bind(this);
+    this.addWrongAnswer = this.addWrongAnswer.bind(this);
   }
 
   componentDidMount() {
@@ -139,18 +141,19 @@ export default class Question extends React.Component {
           }),
         });
       }
-      fetch('https://sensafe-student.herokuapp.com/editFailCount', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id: this.props.data.id,
-          failCount: 0,
-        }),
-      });
     }
+    fetch('https://sensafe-student.herokuapp.com/editFailCount', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: this.props.data.id,
+        failCount: 0,
+      }),
+    });
+
     if (this.state.quizGrade === 100) {
       fetch('https://sensafe-student.herokuapp.com/editAchievement', {
         method: 'POST',
@@ -165,6 +168,23 @@ export default class Question extends React.Component {
         }),
       });
     }
+  }
+
+  addWrongAnswer(question, answers, choosenAnswer) {
+    let item = {
+      question: question,
+      rightAnswer: null,
+    };
+    choosenAnswer.isRight
+      ? null
+      : answers.map(answer => {
+          answer.isRight ? (item.rightAnswer = answer.answer) : null;
+          answer.answer === choosenAnswer.answer
+            ? this.setState({
+                wrongAnswers: [...this.state.wrongAnswers, item],
+              })
+            : null;
+        });
   }
 
   changeProgress = () => {
@@ -220,6 +240,11 @@ export default class Question extends React.Component {
                             : styles.styleForDefaultChoice
                         }
                         onPress={() => {
+                          this.addWrongAnswer(
+                            question.question,
+                            question.answers,
+                            question.answers[0],
+                          );
                           this.calculateQuizGrade(
                             question.answers[0].isRight,
                             question.question,
@@ -256,6 +281,11 @@ export default class Question extends React.Component {
                             : styles.styleForDefaultChoice
                         }
                         onPress={() => {
+                          this.addWrongAnswer(
+                            question.question,
+                            question.answers,
+                            question.answers[1],
+                          );
                           this.calculateQuizGrade(
                             question.answers[1].isRight,
                             question.question,
@@ -292,6 +322,11 @@ export default class Question extends React.Component {
                             : styles.styleForDefaultChoice
                         }
                         onPress={() => {
+                          this.addWrongAnswer(
+                            question.question,
+                            question.answers,
+                            question.answers[2],
+                          );
                           this.calculateQuizGrade(
                             question.answers[2].isRight,
                             question.question,
@@ -328,6 +363,11 @@ export default class Question extends React.Component {
                             : styles.styleForDefaultChoice
                         }
                         onPress={() => {
+                          this.addWrongAnswer(
+                            question.question,
+                            question.answers,
+                            question.answers[3],
+                          );
                           this.calculateQuizGrade(
                             question.answers[3].isRight,
                             question.question,
@@ -360,13 +400,13 @@ export default class Question extends React.Component {
             <Menu data={this.props.data} />
           ) : (
             <View>
-              <TouchableOpacity onPress={() => this.setState({back: true})}>
-                <Image
-                  style={styles.back}
-                  source={require('../images/logout.png')}
-                />
-              </TouchableOpacity>
-              <View style={styles.window}>
+              <ScrollView>
+                <TouchableOpacity onPress={() => this.setState({back: true})}>
+                  <Image
+                    style={styles.back}
+                    source={require('../images/logout.png')}
+                  />
+                </TouchableOpacity>
                 {this.state.quizGrade === 100 ? (
                   <Image
                     style={styles.finalScore}
@@ -391,8 +431,20 @@ export default class Question extends React.Component {
                 <Text style={styles.score}>
                   הציון שלך בבוחן הוא: {this.state.quizGrade}
                 </Text>
+                {this.state.wrongAnswers.map(question => {
+                  return (
+                    <View style={styles.viewRight}>
+                      <Text style={styles.rightAnswers}>
+                        שאלה:"{question.question}"
+                      </Text>
+                      <Text style={styles.rightAnswers}>
+                        תשובה נכונה:"{question.rightAnswer}"
+                      </Text>
+                    </View>
+                  );
+                })}
                 {this.changeStudentQuizGrade()}
-              </View>
+              </ScrollView>
             </View>
           )
         ) : (
@@ -498,10 +550,13 @@ const styles = StyleSheet.create({
     height: 350,
     width: 350,
     marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   score: {
     fontSize: 30,
     marginTop: 15,
+    textAlign: 'center',
   },
   lottie: {
     width: 100,
@@ -510,7 +565,14 @@ const styles = StyleSheet.create({
   back: {
     width: 30,
     height: 30,
-    position: 'absolute',
-    bottom: 100,
-  }.
+    marginTop: 30,
+    marginLeft: 15,
+  },
+  rightAnswers: {
+    textAlign: 'right',
+    fontSize: 20,
+  },
+  viewRight: {
+    marginTop: 20,
+  },
 });
