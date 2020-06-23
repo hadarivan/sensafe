@@ -5,6 +5,7 @@ import './App.css';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card'
 import AddQuestion from './addQuestion';
+import Loader from 'react-loader-spinner';
 import del from './images/delete.png'
 
 class Quiz extends Component {
@@ -22,8 +23,9 @@ class Quiz extends Component {
   }
 
     componentDidMount() {
+      const proxyurl = "https://cors-anywhere.herokuapp.com/";
       const url = 'https://sensafe-quiz.herokuapp.com/admin/allQuestions';
-      fetch(url)
+      fetch(proxyurl+url)
       .then(res => res.json())
       .then(response => {
         this.setState({questions: response})
@@ -79,6 +81,16 @@ render() {
             {this.state.add ? 
                     <AddQuestion/>
                     : 
+                    this.state.questions.length === 0 ? 
+                    <Loader
+                    style={{position: 'relative', left: '600px', top: '200px'}}
+                    type="TailSpin"
+                    color="#00BFFF"
+                    height={100}
+                    width={100}
+                    timeout={3000} //3 secs
+                 />
+                    :
                     <div>
                     <h3 style={{textAlign:'center'}}>Questions</h3>
                     <Button style={{position: 'relative', left: '1020px', top:'20px'}}variant="success" onClick={()=> {

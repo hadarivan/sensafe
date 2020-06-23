@@ -88,7 +88,8 @@ handleChange() {
   if(this.state.level.length > 0 && this.state.question.length > 0 && this.state.image.length > 0 && this.state.answers[0].answer.length > 0 && this.state.answers[1].answer.length > 0 && this.state.answers[2].answer.length > 0 && this.state.answers[3].answer.length > 0)
   {
     console.log("test")
-    fetch('https://sensafe-quiz.herokuapp.com/admin/addQuestion', {
+    const proxyurl = "https://cors-anywhere.herokuapp.com/";
+    fetch(proxyurl + 'https://sensafe-quiz.herokuapp.com/admin/addQuestion', {
       method: 'POST',
       headers: {    
         'Accept': 'application/json',

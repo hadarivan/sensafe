@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import './Laws.css';
+// import './Laws.css';
 import Button from 'react-bootstrap/Button'
 import Laws from './rules';
 

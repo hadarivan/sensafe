@@ -2,6 +2,8 @@
 import React from 'react';
 import './App.css';
 import Quiz from './quiz';
+import TrafficSigns from './trafficSigns';
+import TrafficLaws from './rules';
 import 'bootstrap/dist/css/bootstrap.css';
 import Button from 'react-bootstrap/Button'
 import logo from './images/logo.png'
@@ -36,10 +38,10 @@ class App extends React.Component  {
         <Quiz data={false} /> 
         :
         this.state.screen === 2 ? 
-        /* <TrafficSigns /> */ null
+        <TrafficSigns />
         :
         this.state.screen === 1 ? 
-        /*<TrafficLaws />*/ null
+        <TrafficLaws /> 
         :
         null
       }

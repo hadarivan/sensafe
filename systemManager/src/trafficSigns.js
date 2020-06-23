@@ -1,11 +1,11 @@
-/* eslint-disable jsx-a11y/alt-text */
-
 import React, { Component } from 'react';
 import './App.css';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card'
-import AddTrafficSign from './addTrafficSign';
+import AddTrafficSign from './addTrafficSigns';
 import del from './images/delete.png'
+import Loader from 'react-loader-spinner';
+
 
 class TrafficSigns extends Component {
 
@@ -80,6 +80,16 @@ render() {
             {this.state.add ? 
                     <AddTrafficSign/>
                     : 
+                    this.state.TrafficSigns.length === 0 ?
+                    <Loader
+                    style={{position: 'relative', left: '600px', top: '200px'}}
+                    type="TailSpin"
+                    color="#00BFFF"
+                    height={100}
+                    width={100}
+                    timeout={3000} //3 secs
+                 />
+                    :
                     <div>
                     <h3 style={{textAlign:'center'}}>Traffic Signs</h3>
                     <Button style={{position: 'relative', left: '1020px', top:'20px'}}variant="success" onClick={()=> {
