@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'black',
     margin: 10,
-    textAlign: 'left',
+    textAlign: 'right',
   },
   pieData: {
     fontSize: 18,

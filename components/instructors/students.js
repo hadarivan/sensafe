@@ -12,24 +12,29 @@ import {
 import Accordion from 'react-native-collapsible/Accordion';
 import AnimatedLoader from 'react-native-animated-loader';
 import Profile from '../instructors/profile';
+import StudentData from './studentData';
 let screenWidth = Dimensions.get('window').width;
 let screenHeight = Dimensions.get('window').height;
 export default class studentProfile extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      checked: null,
       class: this.props.grade,
       students: [],
+      name: null,
       student: null,
       studentsClass: [],
       studentChoose: false,
       id: null,
       activeSections: [],
       logout: false,
+      empty: false,
     };
     this.divideToClass = this.divideToClass.bind(this);
     this.renderHeader = this.renderHeader.bind(this);
     this.renderContent = this.renderContent.bind(this);
+    this.simApprove = this.simApprove.bind(this);
   }
   componentDidMount() {
     fetch('https://sensafe-student.herokuapp.com/admin')
@@ -44,11 +49,42 @@ export default class studentProfile extends Component {
   divideToClass() {
     for (let i = 0; i < this.state.students.length; i++) {
       if (this.state.students[i].grade === this.state.class) {
+        this.setState({empty: false});
         this.setState(prevState => ({
           studentsClass: [...prevState.studentsClass, this.state.students[i]],
         }));
+      } else {
+        this.state.studentsClass.length === 0
+          ? this.setState({empty: true})
+          : false;
       }
     }
+  }
+
+  simApprove(studentId, approve) {
+    console.log(studentId, approve);
+    fetch('https://sensafe-student.herokuapp.com/editSimApprove', {
+      // edit name by id
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: studentId,
+        simApprove: approve,
+      }),
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        console.log(responseJson);
+        this.setState({checked: approve});
+        this.setState({name: studentId});
+      })
+      .catch(error => {
+        console.error(error);
+      });
+    this.forceUpdate();
   }
   renderHeader(studentsClass) {
     return (
@@ -85,10 +121,58 @@ export default class studentProfile extends Component {
   renderContent(studentsClass) {
     return (
       <View style={styles.content}>
+        <TouchableOpacity
+          style={styles.radioCircle1}
+          onPress={() => {
+            this.simApprove(studentsClass.id, 'נמוכה');
+          }}>
+          {this.state.checked === null ? (
+            studentsClass.simApprove === 'נמוכה' ? (
+              <View style={styles.selectedRb1} />
+            ) : null
+          ) : null}
+          {this.state.checked === 'נמוכה' &&
+            this.state.name === studentsClass.id && (
+              <View style={styles.selectedRb1} />
+            )}
+        </TouchableOpacity>
+        <Text style={styles.radioText}>רמת מוכנות נמוכה</Text>
+        <TouchableOpacity
+          style={styles.radioCircle2}
+          onPress={() => {
+            this.simApprove(studentsClass.id, 'בינונית');
+          }}>
+          {this.state.checked === null ? (
+            studentsClass.simApprove === 'בינונית' ? (
+              <View style={styles.selectedRb2} />
+            ) : null
+          ) : null}
+          {this.state.checked === 'בינונית' &&
+            this.state.name === studentsClass.id && (
+              <View style={styles.selectedRb2} />
+            )}
+        </TouchableOpacity>
+        <Text style={styles.radioText}>רמת מוכנות בינונית</Text>
+        <TouchableOpacity
+          style={styles.radioCircle3}
+          onPress={() => {
+            this.simApprove(studentsClass.id, 'גבוהה');
+          }}>
+          {this.state.checked === null ? (
+            studentsClass.simApprove === 'גבוהה' ? (
+              <View style={styles.selectedRb3} />
+            ) : null
+          ) : null}
+          {this.state.checked === 'גבוהה' &&
+            this.state.name === studentsClass.id && (
+              <View style={styles.selectedRb3} />
+            )}
+        </TouchableOpacity>
+        <Text style={styles.radioText}>רמת מוכנות גבוהה</Text>
         <Text style={styles.body}>כיתה - {studentsClass.grade}</Text>
         <Text style={styles.body}>רמת בוחן - {studentsClass.quizLevel}</Text>
         <Text style={styles.body}>
-          כמות פעמים שנכשל - {studentsClass.failCount}
+          כמות הנכשלים בבוחן - {studentsClass.failCount}
         </Text>
       </View>
     );
@@ -127,6 +211,25 @@ export default class studentProfile extends Component {
           </ScrollView>
         </View>
       )
+    ) : this.state.empty ? (
+      this.state.logout ? (
+        <Profile data={this.props.data} />
+      ) : (
+        <View>
+          <TouchableOpacity
+            onPress={() => this.setState({logout: true})}
+            style={{right: 150, top: 20}}>
+            <Image
+              source={require('../student/images/go-back.png')}
+              style={styles.logout}
+            />
+          </TouchableOpacity>
+          <Text style={{fontSize: 30, top: 200}}>
+            {' '}
+            אין כרגע תלמידים בכיתה זו
+          </Text>
+        </View>
+      )
     ) : (
       <AnimatedLoader
         visible={true}
@@ -143,6 +246,57 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(255,255,255,0.5)',
+  },
+  radioText: {
+    marginRight: 30,
+    bottom: 25,
+    fontSize: 20,
+  },
+  radioCircle1: {
+    marginTop: 10,
+    height: 30,
+    width: 30,
+    borderRadius: 100,
+    borderWidth: 2,
+    borderColor: 'red',
+    alignSelf: 'flex-end',
+    left: 10,
+  },
+  radioCircle2: {
+    height: 30,
+    width: 30,
+    borderRadius: 100,
+    borderWidth: 2,
+    borderColor: 'orange',
+    alignSelf: 'flex-end',
+    left: 10,
+  },
+  radioCircle3: {
+    height: 30,
+    width: 30,
+    borderRadius: 100,
+    borderWidth: 2,
+    borderColor: 'green',
+    alignSelf: 'flex-end',
+    left: 10,
+  },
+  selectedRb1: {
+    height: 26,
+    width: 26,
+    borderRadius: 100,
+    backgroundColor: 'red',
+  },
+  selectedRb2: {
+    height: 26,
+    width: 26,
+    borderRadius: 100,
+    backgroundColor: 'orange',
+  },
+  selectedRb3: {
+    height: 26,
+    width: 26,
+    borderRadius: 100,
+    backgroundColor: 'green',
   },
   logout: {
     width: 30,
@@ -196,9 +350,7 @@ const styles = StyleSheet.create({
   content: {
     paddingRight: 20,
     width: screenWidth - 10,
-    height: 150,
-    justifyContent: 'center',
-    alignSelf: 'center',
+    height: 300,
     backgroundColor: 'white',
   },
 });
