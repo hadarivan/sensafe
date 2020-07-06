@@ -26,8 +26,9 @@ background-color: grey;
 .productList {
   align-items: center;
   justify-content: center;
+  margin-top: 30px;
 }
-.questionCard { 
+.RulesCard { 
   width: 1200px;
   height: 50px; 
   font-family: 'Varela Round', sans-serif;
