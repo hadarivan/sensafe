@@ -1,10 +1,9 @@
 /* eslint-disable jsx-a11y/alt-text */
 
 import React, { Component } from 'react';
-// import './Laws.css';
+import './Laws.css';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card'
-import Loader from 'react-loader-spinner';
 import AddLaw from './addRules';
 import del from './images/delete.png'
 
@@ -64,7 +63,7 @@ eachLaw(item, i) {
   return (
     <Card
       key={ `container${item._id}` }
-      className="questionCard"
+      className="RulesCard"
     >
         <img onClick= {() => this.delete(item.law)}style={{width:30, height:30}} src={del}/>
         <h6>חוק: {item.law}</h6>
@@ -81,18 +80,9 @@ render() {
         {this.state.add ? 
           <AddLaw/>
           : 
-          this.state.allTrafficLaws.length === 0 ? 
-          <Loader
-          style={{position: 'relative', left: '600px', top: '200px'}}
-          type="TailSpin"
-          color="#00BFFF"
-          height={100}
-          width={100}
-          timeout={3000} //3 secs
-       /> :
           <div>
             <h3 style={{textAlign:'center'}}>Laws</h3>
-            <Button style={{position: 'relative', left: '1020px', top:'20px'}}variant="success" onClick={()=> {
+            <Button style={{float:'right', marginRight: '80px', marginTop:'20px'}}variant="success" onClick={()=> {
               this.setState({add:true})
                 }}>הוספת חוק</Button>
             <div className="productList">
