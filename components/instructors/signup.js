@@ -56,7 +56,6 @@ export default class SignUp extends React.Component {
             this.setState({mistake: 2});
           } else {
             this.setState({mistake: 1});
-            console.log(responseJson);
           }
         } else {
           this.setState({mistake: 0});
@@ -81,7 +80,6 @@ export default class SignUp extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log(responseJson);
         this.setState({instructor: responseJson});
       })
       .catch(error => {
@@ -142,11 +140,9 @@ export default class SignUp extends React.Component {
                 placeholder="סיסמא"
                 placeholderTextColor="#003f5c"
                 onChangeText={text => {
-                  JSHash(text, CONSTANTS.HashAlgorithms.keccak)
-                    .then(hash => {
-                      this.setState({password: hash});
-                    })
-                    .catch(e => console.log(e));
+                  JSHash(text, CONSTANTS.HashAlgorithms.keccak).then(hash => {
+                    this.setState({password: hash});
+                  });
                 }}
               />
             </View>

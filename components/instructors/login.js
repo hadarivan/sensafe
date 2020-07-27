@@ -11,7 +11,6 @@ import {
   Dimensions,
 } from 'react-native';
 let screenWidth = Dimensions.get('window').width;
-let screenHeight = Dimensions.get('window').height;
 import Profile from '../instructors/profile';
 import SignUp from '../instructors/signup';
 import {JSHash, CONSTANTS} from 'react-native-hash';
@@ -43,9 +42,8 @@ export default class Login extends React.Component {
 
   onPress() {
     this.state.instructors.map(item => {
-      JSHash(this.state.password, CONSTANTS.HashAlgorithms.keccak)
-        .then(hash => {
-          console.log(hash);
+      JSHash(this.state.password, CONSTANTS.HashAlgorithms.keccak).then(
+        hash => {
           this.setState({count: this.state.count + 1});
           if (item.id === parseInt(this.state.id)) {
             if (item.password === hash) {
@@ -56,8 +54,8 @@ export default class Login extends React.Component {
           if (this.state.count === this.state.instructors.length) {
             this.setState({mistake: true});
           }
-        })
-        .catch(e => console.log(e));
+        },
+      );
     });
   }
 
@@ -76,7 +74,7 @@ export default class Login extends React.Component {
           ) : this.state.instructors != null ? (
             <View style={styles.container}>
               <Image
-                style={{width: screenWidth, height: 350, top: 12}}
+                style={styles.background}
                 source={require('../student/images/test.jpeg')}
               />
               <TouchableOpacity
@@ -88,11 +86,7 @@ export default class Login extends React.Component {
                 />
               </TouchableOpacity>
               <Image
-                style={{
-                  width: 280,
-                  height: 110,
-                  bottom: 168,
-                }}
+                style={styles.logo}
                 source={require('../student/images/logo.png')}
               />
 
@@ -146,6 +140,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#258c4e',
   },
+  logo: {
+    width: 280,
+    height: 110,
+    bottom: 168,
+  },
+  background: {width: screenWidth, height: 350, top: 12},
   logout: {
     width: 30,
     height: 30,

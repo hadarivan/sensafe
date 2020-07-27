@@ -95,7 +95,7 @@ export default class Profile extends Component {
                       עריכת פרופיל
                     </Text>
                     <Image
-                      style={{width: 25, height: 25}}
+                      style={styles.editBtn}
                       source={require('../student/images/edit.png')}
                     />
                   </TouchableOpacity>
@@ -142,6 +142,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#b5e2ff',
     alignItems: 'center',
   },
+  editBtn: {width: 25, height: 25},
   header: {
     backgroundColor: '#769ECB',
     height: 250,

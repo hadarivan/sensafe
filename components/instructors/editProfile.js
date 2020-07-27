@@ -5,7 +5,6 @@ import {
   Text,
   View,
   Image,
-  Platform,
   TouchableOpacity,
   ScrollView,
   TextInput,
@@ -53,9 +52,6 @@ export default class EditProfile extends Component {
           }),
         })
           .then(response => response.json())
-          .then(responseJson => {
-            console.log(responseJson);
-          })
           .catch(error => {
             console.error(error);
           });
@@ -78,9 +74,6 @@ export default class EditProfile extends Component {
       },
     )
       .then(response => response.json())
-      .then(responseJson => {
-        console.log(responseJson);
-      })
       .catch(error => {
         console.error(error);
       });
@@ -101,7 +94,6 @@ export default class EditProfile extends Component {
       })
         .then(response => response.json())
         .then(responseJson => {
-          console.log(responseJson);
           this.setState({edit: true});
         })
         .catch(error => {
@@ -124,7 +116,6 @@ export default class EditProfile extends Component {
       )
         .then(response => response.json())
         .then(responseJson => {
-          console.log(responseJson);
           this.setState({edit: true});
         })
         .catch(error => {
@@ -167,20 +158,10 @@ export default class EditProfile extends Component {
                   <KeyboardAvoidingView behavior={'height'}>
                     {this.props.data.className.map(className => {
                       return (
-                        <View
-                          key={className}
-                          style={{
-                            flexDirection: 'row',
-                            alignContent: 'center',
-                            justifyContent: 'center',
-                          }}>
+                        <View key={className} style={styles.contain}>
                           <Text style={styles.classes}>{className}</Text>
                           <TouchableOpacity
-                            style={{
-                              alignSelf: 'center',
-                              marginLeft: 5,
-                              marginTop: 10,
-                            }}
+                            style={styles.delete}
                             onPress={() => {
                               Popup.show({
                                 type: 'Danger',
@@ -274,6 +255,11 @@ const styles = StyleSheet.create({
     height: screenHeight,
     backgroundColor: '#EAEBFF',
   },
+  contain: {
+    flexDirection: 'row',
+    alignContent: 'center',
+    justifyContent: 'center',
+  },
   input: {
     borderWidth: 0.2,
     height: 50,
@@ -335,5 +321,10 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     marginBottom: 10,
     alignSelf: 'center',
+  },
+  delete: {
+    alignSelf: 'center',
+    marginLeft: 5,
+    marginTop: 10,
   },
 });

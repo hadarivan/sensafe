@@ -103,7 +103,6 @@ export default class StudentData extends React.Component {
         ),
       }));
     }
-    console.log(this.state.fail);
   }
   avgScore(student) {
     if (student.quizGrade === null) {
@@ -113,8 +112,6 @@ export default class StudentData extends React.Component {
         avgScore: parseInt(student.quizGrade) + this.state.avgScore,
       });
     }
-    // console.log(this.state.avgScore);
-    // console.log(this.state.count);
   }
   avgLevel(student) {
     this.setState({

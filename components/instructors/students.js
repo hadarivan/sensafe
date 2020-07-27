@@ -12,7 +12,6 @@ import {
 import Accordion from 'react-native-collapsible/Accordion';
 import AnimatedLoader from 'react-native-animated-loader';
 import Profile from '../instructors/profile';
-import StudentData from './studentData';
 let screenWidth = Dimensions.get('window').width;
 let screenHeight = Dimensions.get('window').height;
 export default class studentProfile extends Component {
@@ -62,7 +61,6 @@ export default class studentProfile extends Component {
   }
 
   simApprove(studentId, approve) {
-    console.log(studentId, approve);
     fetch('https://sensafe-student.herokuapp.com/editSimApprove', {
       // edit name by id
       method: 'POST',
@@ -77,7 +75,6 @@ export default class studentProfile extends Component {
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log(responseJson);
         this.setState({checked: approve});
         this.setState({name: studentId});
       })
@@ -90,14 +87,7 @@ export default class studentProfile extends Component {
     return (
       <View style={styles.header}>
         <View style={styles.overlay} />
-        <View
-          style={{
-            height: 70,
-            width: screenWidth - 80,
-            justifyContent: 'center',
-            borderBottomWidth: 0.3,
-            borderColor: 'black',
-          }}>
+        <View style={styles.studentName}>
           <Text style={styles.headerText}>{studentsClass.name}</Text>
         </View>
         <View // Circle
@@ -251,6 +241,13 @@ const styles = StyleSheet.create({
     marginRight: 30,
     bottom: 25,
     fontSize: 20,
+  },
+  studentName: {
+    height: 70,
+    width: screenWidth - 80,
+    justifyContent: 'center',
+    borderBottomWidth: 0.3,
+    borderColor: 'black',
   },
   radioCircle1: {
     marginTop: 10,
