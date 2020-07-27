@@ -18,12 +18,13 @@ export default class AllTrafficLaws extends Component {
     }
   }
 
+  // fetching all traffic laws from DataBase
   componentDidMount() {
     fetch('https://sensafe-server.herokuapp.com/traffic_law')
       .then((response) => response.json())
       .then((responseJson) => {
 
-        //extracting unique subjects
+        //extracting unique subjects (categories)
         let subjectsArray = [...responseJson]
         let uniqueSubjectsArray = subjectsArray.filter(function (elem, index, self) {
           return index === self.findIndex(elm => elm.subject == elem.subject);
@@ -35,6 +36,8 @@ export default class AllTrafficLaws extends Component {
         console.error(error);
       });
   }
+  
+  // extracting all the laws associated with selected category
   handleSubjectClick = (subject) => {
     if (typeof subject != 'undefined') {
       let allTrafficLawsFiltered = []
@@ -51,6 +54,7 @@ export default class AllTrafficLaws extends Component {
       })
     }
   }
+ 
 
   render() {
     return (
