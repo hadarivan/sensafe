@@ -10,10 +10,17 @@ module.exports = {
             password=null,
             image="https://cdn0.iconfinder.com/data/icons/occupation-002/64/teacher-teach-occupation-avatar-512.png",
         } = req.body;
-        const result= await Instructor.find({id}); // checks if instructor already exists
+        console.log(typeof(id))
+        if (id.match(/^[0-9]+$/) === null)
+        {
+            res.json("בבקשה להכניס מספר")
+
+        }
+        else {const result= await Instructor.find({id}); // checks if instructor already exists}
         if(id===null || name ===null || className===null || password ===null || image===null) {
             res.json("בבקשה למלא את כל הפרטים")
         }
+
         if(result.length===0){
         const instructor = new Instructor({id,name,className,password,image})
         console.log(instructor)
@@ -29,6 +36,7 @@ module.exports = {
         }
         else if(result.length>0) res.json("instructor already exists");
         else res.status(404).send('not found')      
+    }
     },
     async editId(req, res){  //edit id
         const {id=null, update=null} = req.body;
