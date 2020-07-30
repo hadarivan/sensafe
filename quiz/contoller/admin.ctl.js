@@ -22,6 +22,7 @@ async addQuestion(req, res) { //add question
         image=null,
         answers=null
     } = req.body;
+    console.log(answers);
     const result= await Question.find({question}); // checks if question already exist if not create a new question
     console.log(result.length);
     if(result.length===0){
