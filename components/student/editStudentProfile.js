@@ -24,14 +24,6 @@ export default class EditProfile extends Component {
       name: this.props.data.name,
       id: this.props.data.id,
       grade: this.props.data.grade,
-      quizMistakes: this.props.data.quizMistakes,
-      score: this.props.data.score,
-      level: this.props.data.level,
-      achievements: this.props.data.achievements,
-      quizLevel: this.props.data.quizLevel,
-      quizGrade: this.props.data.quizGrade,
-      failCount: this.props.data.failCount,
-      profileColor: this.props.data.profileColor,
       edit: false,
     };
   }
@@ -50,7 +42,6 @@ export default class EditProfile extends Component {
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log(responseJson);
         this.setState({edit: true});
       })
       .catch(error => {
@@ -70,7 +61,6 @@ export default class EditProfile extends Component {
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log(responseJson);
         this.setState({edit: true});
       })
       .catch(error => {
@@ -90,7 +80,6 @@ export default class EditProfile extends Component {
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log(responseJson);
         this.setState({edit: true});
       })
       .catch(error => {
@@ -101,7 +90,7 @@ export default class EditProfile extends Component {
   render() {
     return (
       <Root>
-        <Animatable.View useNativeDriver duration={3000} animation="bounceInUp">
+        <Animatable.View useNativeDriver duration={3000} animation="fadeIn">
           <View style={styles.container}>
             {this.state.edit ? (
               <StudentProfile data={this.state} />

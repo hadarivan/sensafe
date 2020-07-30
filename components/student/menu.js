@@ -1,4 +1,3 @@
-/* eslint-disable react/no-did-mount-set-state */
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {
@@ -192,7 +191,9 @@ export default class Menu extends React.Component {
                       type: 'Warning',
                       title: 'שים לב !',
                       textBody:
-                        'מעבר לשלב הסימולציה יתאפשר בציון 60 ומעלה בבוחן',
+                        '1. מעבר לשלב הסימולציה יתאפשר בציון 60 ומעלה בבוחן. ' +
+                        '\n\n' +
+                        '2. לאחר 3 נסיעות במסלול הסימולציה ינעל הכפתור עד לפתירה מחדש של הבוחן.',
                       buttontext: 'Ok',
                       callback: () => {
                         Popup.hide();
