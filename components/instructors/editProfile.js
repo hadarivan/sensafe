@@ -77,7 +77,18 @@ export default class EditProfile extends Component {
       .catch(error => {
         console.error(error);
       });
+    fetch('https://sensafe-student.herokuapp.com/deleteByClass', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        grade: className,
+      }),
+    });
   }
+
   edit() {
     if (this.state.className === null) {
       fetch('https://sensafe-instructor.herokuapp.com/instructor/editAll', {
