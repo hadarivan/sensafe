@@ -39,7 +39,7 @@ export default class Login extends React.Component {
       })
       .catch(error => console.error(error));
   }
-
+  //checks if the login details are correct
   onPress() {
     this.state.instructors.map(item => {
       JSHash(this.state.password, CONSTANTS.HashAlgorithms.keccak).then(

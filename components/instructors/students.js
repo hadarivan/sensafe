@@ -59,7 +59,7 @@ export default class studentProfile extends Component {
       }
     }
   }
-
+  //determines the level of simulation level 
   simApprove(studentId, approve) {
     fetch('https://sensafe-student.herokuapp.com/editSimApprove', {
       // edit name by id
