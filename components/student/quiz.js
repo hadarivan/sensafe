@@ -21,16 +21,15 @@ export default class Question extends React.Component {
     super();
 
     this.state = {
-      level: [],
-      wrongAnswers: [],
-      isLoaded: false,
-      back: false,
-      backgroundColor: 'white',
-      clickedId: null,
-      quizGrade: 0,
-      countQuestion: 0,
-      clicked: 0,
-      progressBarProgress: 0.0,
+      level: [],//to get all the questions from the student's level of quiz
+      wrongAnswers: [],//put in all the wrong answers the student has to show in the end of the quiz
+      isLoaded: false,//to show the loading animation until the quiz uploaded
+      back: false,//for when he press back he will return to the menu
+      clickedId: null,//to make the answers disabled after the student pick one and to check what question the student answer.
+      quizGrade: 0,//to enter his final grade to his database
+      countQuestion: 0,//check how many questions the student answer- after 10 questions the student get his grade
+      clicked: 0,//to check what answer out of the 4 options the student pick to color the answer in the right color.
+      progressBarProgress: 0.0,//to know how much questions the student already answer
     };
     this.changeLoad = this.changeLoad.bind(this);
     this.calculateQuizGrade = this.calculateQuizGrade.bind(this);
@@ -39,6 +38,7 @@ export default class Question extends React.Component {
   }
 
   componentDidMount() {
+    //check what the student level is and according to his level save all the question from this level
     if (this.props.data.quizLevel === 1) {
       fetch('https://sensafe-quiz.herokuapp.com/student/level1') // questions level 1
         .then(response => response.json())
@@ -68,7 +68,8 @@ export default class Question extends React.Component {
   changeLoad() {
     this.setState({isLoaded: true});
   }
-
+//every question it is calculate the grade and add 10 points on right answer 
+//or add the mistake to the student database if he picked the wrong answer
   calculateQuizGrade(answerRight, question) {
     answerRight
       ? this.setState(prevState => {
@@ -86,7 +87,7 @@ export default class Question extends React.Component {
           }),
         });
   }
-
+//add the final grade to the student database
   changeStudentQuizGrade() {
     fetch('https://sensafe-student.herokuapp.com/editQuizGrade', {
       method: 'POST',
@@ -99,6 +100,8 @@ export default class Question extends React.Component {
         quizGrade: this.state.quizGrade,
       }),
     });
+    //if the student passed the quiz with grade of 60 or more he proceed 
+    //to the next level and his achievement updated in his profile
     if (this.state.quizGrade >= 60) {
       if (this.props.data.quizLevel === 1) {
         fetch('https://sensafe-student.herokuapp.com/editAchievement', {
@@ -141,20 +144,23 @@ export default class Question extends React.Component {
           }),
         });
       }
+      //if he get over 60 the fail count resets
+      fetch('https://sensafe-student.herokuapp.com/editFailCount', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: this.props.data.id,
+          failCount: 0,
+        }),
+      });
     }
-    fetch('https://sensafe-student.herokuapp.com/editFailCount', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id: this.props.data.id,
-        failCount: 0,
-      }),
-    });
-
-    if (this.state.quizGrade === 100) {
+    
+    //if the student get 100 in the quiz it changes the achievement in 
+    //the database to accomplish
+    else if (this.state.quizGrade === 100) {
       fetch('https://sensafe-student.herokuapp.com/editAchievement', {
         method: 'POST',
         headers: {
@@ -168,8 +174,23 @@ export default class Question extends React.Component {
         }),
       });
     }
+    else{
+      //if the student fail it add 1 to the fail count 
+      fetch('https://sensafe-student.herokuapp.com/editFailCount', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: this.props.data.id,
+          failCount: this.props.data.failCount+1,
+        }),
+      });
+    }
   }
-
+  
+  //add the wrong answer if the student made mistake the the wrongAnswer array
   addWrongAnswer(question, answers, choosenAnswer) {
     let item = {
       question: question,
@@ -178,7 +199,12 @@ export default class Question extends React.Component {
     choosenAnswer.isRight
       ? null
       : answers.map(answer => {
+        /*check what is the right answer from the list of the answers of the 
+        question and save it to show it after in the end of the quiz, 
+        so the student know the right anwer*/ 
           answer.isRight ? (item.rightAnswer = answer.answer) : null;
+          /*check what answer the student answer to enter the question to the 
+          wrong answers array */
           answer.answer === choosenAnswer.answer
             ? this.setState({
                 wrongAnswers: [...this.state.wrongAnswers, item],
@@ -186,7 +212,7 @@ export default class Question extends React.Component {
             : null;
         });
   }
-
+  //add 1 to the progress bar every time the student answer question
   changeProgress = () => {
     this.setState({progressBarProgress: this.state.progressBarProgress + 10});
   };
@@ -195,6 +221,7 @@ export default class Question extends React.Component {
     return (
       <View style={styles.container}>
         {this.state.isLoaded ? (
+          //after 10 question the student get his grade
           this.state.countQuestion !== 10 ? (
             <ScrollView
               horizontal={true}
@@ -204,7 +231,7 @@ export default class Question extends React.Component {
                 return (
                   <View key={question._id} style={styles.container}>
                     <View style={styles.window}>
-                      <Text style={{marginTop: 15}}>
+                      <Text style={styles.progressBar}>
                         {this.state.countQuestion}/10
                       </Text>
                       {Platform.OS === 'android' ? (
@@ -228,6 +255,11 @@ export default class Question extends React.Component {
                         />
                       ) : null}
                       <TouchableOpacity
+                        disabled={
+                          question._id === this.state.clickedId ? true : false
+                        }
+                        /*the style of the answer button that the student pick 
+                        changes according to the answer- if it is right or wrong*/
                         style={
                           this.state.clicked === 1 &&
                           question._id === this.state.clickedId &&
@@ -269,6 +301,11 @@ export default class Question extends React.Component {
                         )}
                       </TouchableOpacity>
                       <TouchableOpacity
+                      //if the student pick answer, all the answers of this question
+                      //became disable so he couldnt chanfe his answer
+                        disabled={
+                          question._id === this.state.clickedId ? true : false
+                        }
                         style={
                           this.state.clicked === 2 &&
                           question._id === this.state.clickedId &&
@@ -310,6 +347,9 @@ export default class Question extends React.Component {
                         )}
                       </TouchableOpacity>
                       <TouchableOpacity
+                        disabled={
+                          question._id === this.state.clickedId ? true : false
+                        }
                         style={
                           this.state.clicked === 3 &&
                           question._id === this.state.clickedId &&
@@ -351,6 +391,9 @@ export default class Question extends React.Component {
                         )}
                       </TouchableOpacity>
                       <TouchableOpacity
+                        disabled={
+                          question._id === this.state.clickedId ? true : false
+                        }
                         style={
                           this.state.clicked === 4 &&
                           question._id === this.state.clickedId &&
@@ -404,34 +447,36 @@ export default class Question extends React.Component {
                 <TouchableOpacity onPress={() => this.setState({back: true})}>
                   <Image
                     style={styles.back}
-                    source={require('../images/logout.png')}
+                    source={require('./images/logout.png')}
                   />
                 </TouchableOpacity>
                 {this.state.quizGrade === 100 ? (
+                  //according to the student grade he get gesture
                   <Image
                     style={styles.finalScore}
-                    source={require('../images/gold.png')}
+                    source={require('./images/gold.png')}
                   />
                 ) : this.state.quizGrade >= 80 ? (
                   <Image
                     style={styles.finalScore}
-                    source={require('../images/silver.png')}
+                    source={require('./images/silver.png')}
                   />
                 ) : this.state.quizGrade >= 60 ? (
                   <Image
                     style={styles.finalScore}
-                    source={require('../images/bronze.png')}
+                    source={require('./images/bronze.png')}
                   />
                 ) : (
                   <Image
                     style={styles.finalScore}
-                    source={require('../images/smileys.png')}
+                    source={require('./images/smileys.png')}
                   />
                 )}
                 <Text style={styles.score}>
                   הציון שלך בבוחן הוא: {this.state.quizGrade}
                 </Text>
                 {this.state.wrongAnswers.map(question => {
+                  //The student gets all the questions he was wrong about and their right answer
                   return (
                     <View style={styles.viewRight}>
                       <Text style={styles.rightAnswers}>
@@ -447,17 +492,7 @@ export default class Question extends React.Component {
               </ScrollView>
             </View>
           )
-        ) : (
-          <View style={styles.container}>
-            <AnimatedLoader
-              visible={true}
-              overlayColor="003f5c"
-              animationStyle={styles.lottie}
-              speed={1}
-              source={require('../images/18535-best-bike-guide-bicycle.json')}
-            />
-          </View>
-        )}
+        ) : null}
       </View>
     );
   }
@@ -574,5 +609,8 @@ const styles = StyleSheet.create({
   },
   viewRight: {
     marginTop: 20,
+  },
+  progressBar: {
+    marginTop: 15,
   },
 });
