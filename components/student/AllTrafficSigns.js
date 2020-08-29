@@ -1,8 +1,11 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable react/jsx-no-undef */
 /* eslint-disable eqeqeq */
 import React, { Component } from 'react'
 import AnimatedLoader from 'react-native-animated-loader'
-import { Alert, Modal, FlatList, StyleSheet, View, Text, TouchableOpacity } from 'react-native'
+import { Alert, Modal, FlatList, StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native'
 import TrafficSignImage from './TrafficSignImage'
+import Menu from './menu'
 
 export default class AllTrafficSigns extends Component {
   constructor (props) {
@@ -13,7 +16,8 @@ export default class AllTrafficSigns extends Component {
       gridView: true,
       HeaderText: 'תמרורים',
       isVisible: false,
-      selectedId: false
+      selectedId: false,
+      logout: false
     }
   }
 
@@ -50,52 +54,62 @@ export default class AllTrafficSigns extends Component {
                 source={require('../student/images/18535-best-bike-guide-bicycle.json')}
               />
             </View>)
-            : (<View style={{ flex: 1 }}>
-              <View style={styles.Header}>
-                <Text style={styles.HeaderText}>{this.state.HeaderText}</Text>
-              </View>
-              <Modal
-                animationType = {'slide'}
-                transparent={false}
-                visible={this.state.isVisible}
-                onRequestClose={() => {
-                  Alert.alert('Modal has now been closed.')
-                }}>
-
-                <View style={{ flex: 1 }}>
-                  <View style = {styles.textViewHolderOnPress}>
-                    <Text style={styles.textOnImageOnPress}>{selectedObject.name}</Text>
-                  </View>
-                  <View style={styles.imageHolderOnPress}>
-                    <TrafficSignImage imageURI={selectedObject.image} style={styles.imageOnPress} />
-                    <View style={styles.toDoContainer}>
-                      <Text style={styles.meaning}>משמעות התמרור</Text>
-                      <Text style={styles.toDo}>{selectedObject.toDo}</Text>
-                    </View>
-                  </View>
-                </View>
-
-                <Text
-                  style={styles.closeText}
-                  onPress={() => {
-                    this.displayModal(!this.state.isVisible)
-                  }}>סגור</Text>
-              </Modal>
-
-              <FlatList keyExtractor={(item) => item.id}
-                numColumns={this.state.gridView ? 2 : 1}
-                data={trafficSigns}
-                renderItem={({ item }) =>
-                  <TouchableOpacity onPress={() => {
-                    this.displayModal(true, item.id)
-                  }} style={{ flex: 1 }}>
-                    <TrafficSignImage imageURI={item.image}/>
-                    <View style={styles.textViewHolder}>
-                      <Text numberOfLines={1} style={styles.textOnImage}>{item.name}</Text>
-                    </View>
+            : this.state.logout
+              ? <Menu data = {this.props.data}/>
+              : (<View style={{ flex: 1 }}>
+                <View style={styles.Header}>
+                  <Text style={styles.HeaderText}>{this.state.HeaderText}</Text>
+                  <TouchableOpacity
+                    onPress={() => this.setState({ logout: true })}
+                    style={{ bottom: 24, left: 150 }}>
+                    <Image
+                      source={require('./images/back.png')}
+                      style={styles.back}
+                    />
                   </TouchableOpacity>
-                }/>
-            </View>)
+                </View>
+                <Modal
+                  animationType = {'slide'}
+                  transparent={false}
+                  visible={this.state.isVisible}
+                  onRequestClose={() => {
+                    Alert.alert('Modal has now been closed.')
+                  }}>
+
+                  <View style={{ flex: 1 }}>
+                    <View style = {styles.textViewHolderOnPress}>
+                      <Text style={styles.textOnImageOnPress}>{selectedObject.name}</Text>
+                    </View>
+                    <View style={styles.imageHolderOnPress}>
+                      <TrafficSignImage imageURI={selectedObject.image} style={styles.imageOnPress} />
+                      <View style={styles.toDoContainer}>
+                        <Text style={styles.meaning}>משמעות התמרור</Text>
+                        <Text style={styles.toDo}>{selectedObject.toDo}</Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  <Text
+                    style={styles.closeText}
+                    onPress={() => {
+                      this.displayModal(!this.state.isVisible)
+                    }}>סגור</Text>
+                </Modal>
+
+                <FlatList keyExtractor={(item) => item.id}
+                  numColumns={this.state.gridView ? 2 : 1}
+                  data={trafficSigns}
+                  renderItem={({ item }) =>
+                    <TouchableOpacity onPress={() => {
+                      this.displayModal(true, item.id)
+                    }} style={{ flex: 1 }}>
+                      <TrafficSignImage imageURI={item.image}/>
+                      <View style={styles.textViewHolder}>
+                        <Text numberOfLines={1} style={styles.textOnImage}>{item.name}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  }/>
+              </View>)
         }
       </View>
     )
@@ -187,5 +201,10 @@ const styles = StyleSheet.create(
     },
     textOnImage: {
       color: 'white'
+    },
+    back: {
+      width: 30,
+      height: 30,
+      alignSelf: 'center'
     }
   })
