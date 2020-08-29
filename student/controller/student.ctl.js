@@ -16,6 +16,14 @@ module.exports = {
         else if(result) res.json(result);
         else res.status(404).send('not found');
     },
+    async deleteStudentByClass(req, res) {    //delete by class
+        const {grade=null} = req.body;
+        const result = await Student.deleteMany({grade})
+        console.log(result);
+        if(result==null) res.json("No students were found") // checks if id exist if exist then delete
+        else if(result) res.json(result);
+        else res.status(404).send('not found');
+    },
     async addStudent(req, res) { //add student
         const {
             id= null,
@@ -35,12 +43,12 @@ module.exports = {
             quizGrade= null,
             quizMistakes= [],
             failCount= 0,
-            simMistakes= [],
+            simApprove= null,
             simCount= 0,
         } = req.body;
         const result= await Student.find({id}); // checks if id already exist if not create a new student
         if(result.length===0){
-            const student = new Student({id, name, grade, score, level, achievements, quizLevel, quizGrade, quizMistakes, failCount, profileColor, simMistakes, simCount})
+            const student = new Student({id, name, grade, score, level, achievements, quizLevel, quizGrade, quizMistakes, failCount, profileColor, simApprove, simCount})
             console.log(student)
             student.save(function (err) {
                 if (err) { 
@@ -142,9 +150,9 @@ module.exports = {
         else if(result) res.json(result);
         else res.status(404).send('not found');
     },
-    async addStudentSimMistakes(req, res){  //edit student's simulation track mistakes by id
-        const {id=null, simMistake=null} = req.body;
-        const result =await Student.findOneAndUpdate({id},{$push: {simMistakes: simMistake}},{});
+    async editStudentSimApprove(req, res){  //edit student's simulation track mistakes by id
+        const {id=null, simApprove=null} = req.body;
+        const result =await Student.findOneAndUpdate({id},{$set:{simApprove}},{});
         console.log(result);
         if(result==null) res.json("No student was found")  // checks if name exist if exist then edit
         else if(result) res.json(result);
