@@ -19,6 +19,7 @@ app.post('/admin/editName', studentCtl.editStudentByName); //admin edit delete s
 app.post('/admin/getStudentId', studentCtl.getStudentById); //show student by ID
 app.post('/admin/getStudentName', studentCtl.getStudentByName); //show student by Name
 /*All routes to edit student profile*/
+app.post('/deleteByClass', studentCtl.deleteStudentByClass); //delete students by class
 app.post('/editGrade', studentCtl.editStudentGrade); //edit student grade
 app.post('/editScore', studentCtl.editStudentScore); //edit student score 
 app.post('/editLevel', studentCtl.editStudentLevel); //edit student level
@@ -28,7 +29,7 @@ app.post('/editQuizGrade', studentCtl.editStudentQuizGrade); //edit student quiz
 app.post('/addQuizMistakes', studentCtl.addStudentQuizMistakes); //edit student quiz mistakes
 app.post('/editFailCount', studentCtl.editStudentFailCount); //count the number of times the student fail in the quiz on the same level
 app.post('/editSimCount', studentCtl.editStudentSimCount); //count the number of times the student did simulation track
-app.post('/addSimMistakes', studentCtl.addStudentSimMistakes); //edit student simulation track mistakes
+app.post('/editSimApprove', studentCtl.editStudentSimApprove); //edit student simulation track mistakes
 
 app.all('*', studentCtl.routeNotFound);
 app.listen(port, () => console.log(`listening on port ${port}`));
