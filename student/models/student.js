@@ -12,7 +12,7 @@ const schema = {
     quizMistakes:{type:Array},
     failCount:{type:Number},
     profileColor:{type:String},
-    simMistakes: {type:Array},
+    simApprove: {type:String},
     simCount:{type:Number},
 };
 
