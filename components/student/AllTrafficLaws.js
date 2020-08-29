@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import AnimatedLoader from 'react-native-animated-loader';
 import { FlatList, StyleSheet, View, Image, Text, TouchableOpacity } from 'react-native';
+import Menu from './menu'
 
 export default class AllTrafficLaws extends Component {
 
@@ -13,7 +14,6 @@ export default class AllTrafficLaws extends Component {
       HeaderText: 'חוקי תנועה',
       subjectsList: null,
       allTrafficLawsFiltered: false,
-      back: false,
       logout:false
     }
   }
@@ -72,7 +72,7 @@ export default class AllTrafficLaws extends Component {
               />
             </View>)
             :this.state.logout?
-            <AllTrafficLaws data = {this.props.data}/>
+            <Menu data = {this.props.data}/>
             :
             (<View style={{ flex: 1 }}>
               <View style={styles.Header}>
