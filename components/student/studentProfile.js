@@ -1,5 +1,3 @@
-/* eslint-disable radix */
-/* eslint-disable react-native/no-inline-styles */
 import React, {Component} from 'react';
 import {
   StyleSheet,
@@ -21,16 +19,17 @@ export default class studentProfile extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      edit: false,
-      logout: false,
-      score: null,
-      student: null,
-      students: [],
-      rank: null,
+      edit: false, //edit profile state to send the student to the editStudentProfile component
+      logout: false, //if the student want to go back
+      score: null, //keep the student score to calculate his level
+      student: null, //keep the relvant student
+      students: [], //keep all the students in array
+      rank: null, //represent the student level
     };
   }
 
   componentDidMount() {
+    //get all the students
     fetch('https://sensafe-student.herokuapp.com/admin')
       .then(response => response.json())
       .then(json => {
@@ -38,45 +37,37 @@ export default class studentProfile extends Component {
       })
       .catch(error => console.error(error));
   }
-
+  //find the specific student 
   fetchStudent() {
     this.state.students.map(item => {
-      if (item.name === this.props.data.name) {
-        if (item.grade === this.props.data.grade) {
-          this.setState({student: item}, () => {
-            var score = 0;
-            this.state.student.achievements.map(achiv => {
-              if (achiv.isDone) {
-                score += achiv.points;
-              }
-            });
-            fetch('https://sensafe-student.herokuapp.com/editScore', {
-              method: 'POST',
-              headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                id: this.state.student.id,
-                score: score,
-              }),
-            })
-              .then(response => response.json())
-              .then(responseJson => {
-                // console.log(responseJson);
-                this.setState({score: score}, this.checkRank);
-              })
-              .catch(error => {
-                console.error(error);
-              });
+      if (item.id === this.props.data.id) {
+        this.setState({student: item}, () => {
+          //calculate the student score according to his achievements and update it in the database
+          //(the student gets his points only from achievements)
+          var score = 0;
+          this.state.student.achievements.map(achiv => {
+            if (achiv.isDone) {
+              score += achiv.points;
+            }
           });
-          this.checkRank();
-        }
+          fetch('https://sensafe-student.herokuapp.com/editScore', {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              id: this.state.student.id,
+              score: score,
+            }),
+          })
+        });
+        this.checkRank();
       }
     });
   }
-
-  checkRank(score) {
+  //update the level of the student (if it didnt already changed at is current visit in his profile)
+  checkRank() {
     if (this.state.rank === null && !(this.state.score === null)) {
       if (this.state.score >= 0 && this.state.score < 200) {
         this.setState({rank: 'baby'}, () => this.changeRank());
@@ -91,6 +82,7 @@ export default class studentProfile extends Component {
       }
     }
   }
+  //change the student level in the database if necessary
   changeRank() {
     fetch('https://sensafe-student.herokuapp.com/editLevel', {
       method: 'POST',
@@ -104,9 +96,6 @@ export default class studentProfile extends Component {
       }),
     })
       .then(response => response.json())
-      .then(responseJson => {
-        // console.log(responseJson);
-      })
       .catch(error => {
         console.error(error);
       });
@@ -117,7 +106,8 @@ export default class studentProfile extends Component {
       <EditStudentProfile data={this.props.data} />
     ) : this.state.logout ? (
       <Menu data={this.props.data} />
-    ) : this.state.student === null ? (
+    ) : this.state.student === null ? 
+    (
       <View style={styles.container}>
         <AnimatedLoader
           visible={true}
@@ -127,7 +117,8 @@ export default class studentProfile extends Component {
           source={require('../student/images/18535-best-bike-guide-bicycle.json')}
         />
       </View>
-    ) : this.state.score === null ? (
+    ) 
+    : this.state.score === null ? (
       <View style={styles.container} />
     ) : (
       <View style={styles.container}>
@@ -135,7 +126,7 @@ export default class studentProfile extends Component {
           <View style={styles.header}>
             <TouchableOpacity
               onPress={() => this.setState({logout: true})}
-              style={{top: 20, right: 150}}>
+              style={styles.back}>
               <Image
                 source={require('../student/images/go-back.png')}
                 style={styles.logout}
@@ -159,12 +150,12 @@ export default class studentProfile extends Component {
               onPress={() => {
                 this.setState({edit: true});
               }}>
-              <Text style={{justifyContent: 'center', fontSize: 25}}>
+              <Text style={styles.editProfile}>
                 {'  '}
                 עריכת פרופיל
               </Text>
               <Image
-                style={{width: 25, height: 25}}
+                style={styles.editImage}
                 source={require('../student/images/edit.png')}
               />
             </TouchableOpacity>
@@ -172,7 +163,7 @@ export default class studentProfile extends Component {
           <View style={styles.body}>
             <Text style={styles.bodyText}>ניקוד: {this.state.score}</Text>
             <Text style={styles.bodyText}>שלב:</Text>
-            <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+            <View style={styles.levelList}>
               <Image
                 style={
                   this.state.rank === 'baby'
@@ -303,7 +294,7 @@ const styles = StyleSheet.create({
   textAvatar: {
     fontSize: 60,
     position: 'absolute',
-    marginTop: 45,
+    marginTop: 60,
     alignSelf: 'center',
   },
   avatar: {
@@ -373,5 +364,21 @@ const styles = StyleSheet.create({
     width: 200,
     borderRadius: 30,
     backgroundColor: 'white',
+  },
+  back: {
+    top: 20, 
+    right: 150,
+  },
+  editProfile: {
+    justifyContent: 'center', 
+    fontSize: 25,
+  },
+  editImage: {
+    width: 25, 
+    height: 25,
+  },
+  levelList: {
+    flexDirection: 'row', 
+    justifyContent: 'flex-end',
   },
 });
